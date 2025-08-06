@@ -3,55 +3,52 @@
     <section class="p-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-        <!-- Booking Hari Ini -->
-        <router-link to="/daftarBooking" class="block">
-          <DashboardCard
-            title="Booking Hari Ini"
-            :value="bookingHariIni"
-            icon="📷"
-            class="text-white bg-gradient-to-br from-blue-400 to-blue-600 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center hover:shadow-xl transition-all duration-300 cursor-pointer"
-          />
-        </router-link>
+      <router-link to="/daftarBooking" class="block">
+<DashboardCard
+  title="Booking Hari Ini"
+  :value="bookingHariIni"
+  icon="📷"
+  theme="blue"
+/>
+</router-link>
 
-        <!-- Jadwal Tersedia -->
-        <router-link to="/kalender" class="block">
-          <DashboardCard
-            title="Jadwal Tersedia"
-            :value="jadwalTersedia"
-            icon="📅"
-            class="text-white bg-gradient-to-br from-green-400 to-green-600 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center hover:shadow-xl transition-all duration-300 cursor-pointer"
-          />
-        </router-link>
+<router-link to="/kalender" class="block">
+<DashboardCard
+  title="Jadwal Tersedia"
+  :value="jadwalTersedia"
+  icon="📅"
+  theme="green"
+/>
+</router-link>
 
-        <!-- Paket Aktif -->
-        <router-link to="/paketfoto" class="block">
-          <DashboardCard
-            title="Paket Foto"
-            :value="jumlahPaket"
-            icon="🖼️"
-            class="text-white bg-gradient-to-br from-purple-400 to-purple-600 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center hover:shadow-xl transition-all duration-300 cursor-pointer"
-          />
-        </router-link>
 
-        <!-- Booking Pending -->
-        <router-link to="/daftarBooking" class="block">
-          <DashboardCard
-            title="Booking Pending"
-            :value="bookingPending"
-            icon="⏳"
-            class="text-white bg-gradient-to-br from-yellow-400 to-yellow-600 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center hover:shadow-xl transition-all duration-300 cursor-pointer"
-          />
-        </router-link>
+<router-link to="/paketfoto" class="block">
+<DashboardCard
+  title="Paket Foto"
+  :value="jumlahPaket"
+  icon="🖼️"
+  theme="pink"
+/>
+</router-link>
 
-        <!-- Rekap Data Booking -->
-        <router-link to="/rekapbooking" class="block">
-          <DashboardCard
-            title="Rekap Booking"
-            :value="rekapBooking"
-            icon="🗃️"
-            class="text-white bg-gradient-to-br from-red-400 to-red-600 p-6 rounded-xl shadow-lg flex flex-col items-center justify-center hover:shadow-xl transition-all duration-300 cursor-pointer"
-          />
-        </router-link>
+<router-link to="/daftarBooking" class="block">
+<DashboardCard
+  title="Booking Pending"
+  :value="bookingPending"
+  icon="⏳"
+  theme="yellow"
+/>
+</router-link>
+
+<router-link to="/rekapbooking" class="block">
+<DashboardCard
+  title="Rekap Booking"
+  :value="rekapBooking"
+  icon="🗃️"
+  theme="purple"
+/>
+</router-link>
+
 
       </div>
     </section>
