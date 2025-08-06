@@ -16,6 +16,8 @@ import RekapBooking from './pages/hal-admin/RekapBooking.vue'
 import HalUtama from './pages/hal-cust/HalUtama.vue'
 import PriceList from './pages/hal-cust/PriceList.vue'
 import About from './pages/hal-cust/About.vue'
+import Kontak from './pages/hal-cust/Kontak.vue'
+
 
 
 import { auth } from './firebase.js'
@@ -101,6 +103,11 @@ const routes = [
     path: '/about',
     name: 'About',
     component: About,
+  },
+  {
+    path: '/kontak',
+    name: 'Kontak',
+    component: Kontak,
   }
 ];
 
