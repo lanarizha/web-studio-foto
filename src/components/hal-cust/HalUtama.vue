@@ -1,19 +1,19 @@
 <template>
   <LayoutPage>
-    <div class="min-h-screen flex flex-col bg-white text-gray-900">
+    <div class="min-h-screen flex flex-col bg-white text-gray-900 transition-colors duration-300">
       
       <!-- Filter Kategori -->
-      <div class="px-4 py-4">
-        <div class="flex flex-wrap gap-2 justify-center">
+      <div class="px-4 py-6 sticky top-0 z-40 bg-white/80 backdrop-blur-md shadow-md">
+        <div class="flex flex-wrap gap-3 justify-center">
           <button
             v-for="cat in categories"
             :key="cat"
-            @click="activeCategory = cat"
+            @click="changeCategory(cat)"
             :class="[
-              'px-4 py-2 rounded-full text-sm font-medium border transition',
+              'px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition-all duration-300 ease-in-out',
               activeCategory === cat
-                ? 'bg-gray-900 text-white border-gray-900'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                ? 'bg-gray-900 text-white border-gray-900 scale-105'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 hover:scale-105'
             ]"
           >
             {{ cat }}
@@ -22,36 +22,46 @@
       </div>
 
       <!-- Gallery -->
-      <main class="flex-grow px-4 py-6 max-w-7xl mx-auto">
-        <section class="columns-2 sm:columns-3 md:columns-4 gap-4 space-y-4">
+      <main class="flex-grow px-2 sm:px-4 py-6 max-w-7xl mx-auto">
+        <transition-group
+          :name="transitionName"
+          tag="section"
+          class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6"
+          :key="activeCategory"
+        >
           <div
             v-for="(photo, index) in filteredPhotos"
-            :key="index"
-            class="w-full overflow-hidden rounded-lg shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+            :key="photo.src"
+            :style="{ transitionDelay: (index * 100) + 'ms' }"
+            :class="[
+              'bg-white p-1 sm:p-2 rounded-lg shadow hover:shadow-lg transition-all duration-300 cursor-pointer break-inside-avoid fade-item'
+            ]"
             @click="openModal(photo)"
           >
             <img
               :src="photo.src"
               :alt="photo.alt"
-              class="w-full mb-0 object-cover rounded transition-transform duration-300 ease-in-out hover:scale-105"
+              class="w-full h-auto rounded-md object-cover transition-transform duration-300 ease-in-out hover:scale-105"
               loading="lazy"
             />
           </div>
-        </section>
+        </transition-group>
       </main>
 
-      <!-- Image Modal -->
-      <div
-        v-if="selectedPhoto"
-        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-        @click.self="selectedPhoto = null"
-      >
-        <img
-          :src="selectedPhoto.src"
-          :alt="selectedPhoto.alt"
-          class="max-w-full max-h-screen rounded shadow-lg transition-all duration-300"
-        />
-      </div>
+      <!-- Modal -->
+      <transition name="zoom">
+        <div
+          v-if="selectedPhoto"
+          class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+          @click.self="selectedPhoto = null"
+        >
+          <img
+            :src="selectedPhoto.src"
+            :alt="selectedPhoto.alt"
+            class="max-w-full max-h-screen rounded-xl shadow-2xl transition-all duration-500 ease-in-out"
+          />
+        </div>
+      </transition>
 
       <!-- Footer -->
       <footer class="border-t border-gray-200 py-6 text-center text-gray-500 text-sm font-sans">
@@ -62,10 +72,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import LayoutPage from '../layout-cust/LayoutPage.vue'
 
-// Import gambar dari assets
+// Import gambar
 import img1 from '../../assets/bayi-1.jpg'
 import img2 from '../../assets/bayi-2.jpg'
 import img3 from '../../assets/bayi-3.webp'
@@ -86,48 +96,135 @@ import img17 from '../../assets/wide-3.jpg'
 import img18 from '../../assets/high-1.jpg'
 import img19 from '../../assets/high-2.jpg'
 import img20 from '../../assets/high-3.jpg'
+import img21 from '../../assets/high-4.jpg'
+import img22 from '../../assets/klg-4.jpeg'
+import img23 from '../../assets/studio-4.webp'
+import img24 from '../../assets/wide-4.jpg'
 
-const categories = ['Semua', 'Bayi', 'Prewed', 'Keluarga', 'Studio', 'Wide Angle', 'High Angle']
-const activeCategory = ref('Semua')
+const categories = ['All Photos', 'New Born', 'Prewed', 'Family', 'Studio', 'Wide Angle', 'High Angle']
+const activeCategory = ref('All Photos')
+const previousCategory = ref(activeCategory.value)
 
 const photos = [
-  { src: img1, alt: 'Galeri Foto 1', category: 'Bayi' },
-  { src: img2, alt: 'Galeri Foto 2', category: 'Bayi' },
-  { src: img3, alt: 'Galeri Foto 3', category: 'Bayi' },
-  { src: img4, alt: 'Galeri Foto 4', category: 'Bayi' },
-  { src: img5, alt: 'Galeri Foto 5', category: 'Prewed' },
-  { src: img6, alt: 'Galeri Foto 6', category: 'Prewed' },
-  { src: img7, alt: 'Galeri Foto 7', category: 'Prewed' },
-  { src: img8, alt: 'Galeri Foto 8', category: 'Prewed' },
-  { src: img9, alt: 'Galeri Foto 9', category: 'Keluarga' },
-  { src: img10, alt: 'Galeri Foto 10', category: 'Keluarga' },
-  { src: img11, alt: 'Galeri Foto 11', category: 'Keluarga' },
-  { src: img12, alt: 'Galeri Foto 12', category: 'Studio' },
-  { src: img13, alt: 'Galeri Foto 13', category: 'Studio' },
-  { src: img14, alt: 'Galeri Foto 14', category: 'Studio' },
-  { src: img15, alt: 'Galeri Foto 15', category: 'Wide Angle' },
-  { src: img16, alt: 'Galeri Foto 16', category: 'Wide Angle' },
-  { src: img17, alt: 'Galeri Foto 17', category: 'Wide Angle' },
-  { src: img18, alt: 'Galeri Foto 18', category: 'High Angle' },
-  { src: img19, alt: 'Galeri Foto 19', category: 'High Angle' },
-  { src: img20, alt: 'Galeri Foto 20', category: 'High Angle' },
+  { src: img1, alt: 'New Born 1', category: 'New Born' },
+  { src: img2, alt: 'New Born 2', category: 'New Born' },
+  { src: img3, alt: 'New Born 3', category: 'New Born' },
+  { src: img4, alt: 'New Born 4', category: 'New Born' },
+  { src: img5, alt: 'Prewed 1', category: 'Prewed' },
+  { src: img6, alt: 'Prewed 2', category: 'Prewed' },
+  { src: img7, alt: 'Prewed 3', category: 'Prewed' },
+  { src: img8, alt: 'Prewed 4', category: 'Prewed' },
+  { src: img9, alt: 'Family 1', category: 'Family' },
+  { src: img10, alt: 'Family 2', category: 'Family' },
+  { src: img11, alt: 'Family 3', category: 'Family' },
+  { src: img12, alt: 'Studio 1', category: 'Studio' },
+  { src: img13, alt: 'Studio 2', category: 'Studio' },
+  { src: img14, alt: 'Studio 3', category: 'Studio' },
+  { src: img15, alt: 'Wide 1', category: 'Wide Angle' },
+  { src: img16, alt: 'Wide 2', category: 'Wide Angle' },
+  { src: img17, alt: 'Wide 3', category: 'Wide Angle' },
+  { src: img18, alt: 'High 1', category: 'High Angle' },
+  { src: img19, alt: 'High 2', category: 'High Angle' },
+  { src: img20, alt: 'High 3', category: 'High Angle' },
+  { src: img21, alt: 'High 4', category: 'High Angle' },
+  { src: img22, alt: 'Family 4', category: 'Family' },
+  { src: img23, alt: 'Studio 4', category: 'Studio' },
+  { src: img24, alt: 'Wide 4', category: 'Wide Angle' },
 ]
 
 const filteredPhotos = computed(() => {
-  if (activeCategory.value === 'Semua') return photos
+  if (activeCategory.value === 'All Photos') return photos
   return photos.filter((photo) => photo.category === activeCategory.value)
 })
 
 const selectedPhoto = ref(null)
-function openModal(photo) {
+
+async function openModal(photo) {
+  selectedPhoto.value = null
+  await nextTick()
   selectedPhoto.value = photo
 }
+
+function changeCategory(cat) {
+  previousCategory.value = activeCategory.value
+  activeCategory.value = cat
+}
+
+const transitionName = computed(() => {
+  const oldIndex = categories.indexOf(previousCategory.value)
+  const newIndex = categories.indexOf(activeCategory.value)
+  return newIndex > oldIndex ? 'slide-left' : 'slide-right'
+})
 </script>
 
 <style scoped>
+/* Hindari pemotongan kolom */
 img {
   break-inside: avoid;
   border-radius: 0.5rem;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
+}
+
+/* Fade zoom in per foto */
+.fade-item {
+  opacity: 0;
+  transform: scale(0.95);
+  animation: fadeZoomIn 0.5s ease forwards;
+}
+
+@keyframes fadeZoomIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modal zoom */
+.zoom-enter-active,
+.zoom-leave-active {
+  transition: all 0.4s ease;
+}
+.zoom-enter-from {
+  opacity: 0;
+  transform: scale(0.85);
+}
+.zoom-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+/* Slide left */
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: all 0.6s ease;
+  will-change: transform, opacity;
+}
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(50px);
+}
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+/* Slide right */
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.6s ease;
+  will-change: transform, opacity;
+}
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+/* Hover tambahan */
+img:hover {
+  filter: brightness(1.05) saturate(1.1);
 }
 </style>
