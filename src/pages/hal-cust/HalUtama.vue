@@ -3,7 +3,7 @@
     <div class="min-h-screen flex flex-col bg-white text-gray-900 transition-colors duration-300">
       
       <!-- Filter Kategori -->
-      <div class="px-4 py-6 sticky top-0 z-40 bg-white/80 backdrop-blur-md shadow-md">
+      <div class="px-4 py-6 sticky top-0 z-40 bg-pink-100 bg-opacity/100 backdrop-blur-md shadow-md">
         <div class="flex flex-wrap gap-3 justify-center">
           <button
             v-for="cat in categories"
@@ -12,8 +12,8 @@
             :class="[
               'px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition-all duration-300 ease-in-out',
               activeCategory === cat
-                ? 'bg-gray-900 text-white border-gray-900 scale-105'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100 hover:scale-105'
+                ? 'bg-blue-50 text-black border-gray-900 scale-105'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-pink-200 hover:scale-105'
             ]"
           >
             {{ cat }}
