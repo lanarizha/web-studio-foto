@@ -201,7 +201,7 @@
 </template>
 
 <script>
-import LayoutPage from "../layoutt/LayoutPage.vue";
+import LayoutPage from '../../layouts/layout-admin/LayoutPage.vue'
 
 export default {
   name: "BookingTable",

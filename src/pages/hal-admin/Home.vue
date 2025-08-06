@@ -60,8 +60,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import DashboardCard from '../layoutt/DashboardCard.vue'
-import LayoutPage from '../layoutt/LayoutPage.vue'
+import DashboardCard from '../../components/DashboardCard.vue'
+import LayoutPage from '../../layouts/layout-admin/LayoutPage.vue'
 
 // State
 const bookingList = ref([])

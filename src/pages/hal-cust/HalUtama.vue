@@ -63,17 +63,13 @@
         </div>
       </transition>
 
-      <!-- Footer -->
-      <footer class="border-t border-gray-200 py-6 text-center text-gray-500 text-sm font-sans">
-        © 2024 Se/f Studios. All rights reserved.
-      </footer>
     </div>
   </LayoutPage>
 </template>
 
 <script setup>
 import { ref, computed, nextTick } from 'vue'
-import LayoutPage from '../layout-cust/LayoutPage.vue'
+import LayoutPage from '../../layouts/layout-cust/LayoutPage.vue'
 
 // Import gambar
 import img1 from '../../assets/bayi-1.jpg'

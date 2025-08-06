@@ -1,8 +1,8 @@
 <script setup>
 // import LayoutPage from '../layoutt/LayoutPage.vue' // perbaiki path jika folder diganti ke layout/
-import Button from '../layoutt/Button.vue'
+import Button from '../../components/Button.vue'
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import LayoutPage from '../layout-cust/LayoutPage.vue'
+import LayoutPage from '../../layouts/layout-cust/LayoutPage.vue'
 
 // Import gambar dari folder assets
 import prewedImage1 from '../../assets/prewed-1.jpg'

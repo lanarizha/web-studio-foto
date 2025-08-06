@@ -75,7 +75,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import LayoutPage from '../layoutt/LayoutPage.vue'
+import LayoutPage from '../../layouts/layout-admin/LayoutPage.vue'
 
 const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
 const monthNames = [

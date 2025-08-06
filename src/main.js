@@ -8,13 +8,14 @@ import LoginPage from './components/LoginPage.vue'
 import DashboardPage from './components/DashboardPage.vue'
 
 // ✅ Folder "halaman"
-import Home from './components/halaman/Home.vue'
-import DaftarBooking from './components/halaman/DaftarBooking.vue'
-import Kalender from './components/halaman/Kalender.vue'
-import PaketFoto from './components/halaman/PaketFoto.vue'
-import RekapBooking from './components/halaman/RekapBooking.vue'
-import HalUtama from './components/hal-cust/HalUtama.vue'
-import PriceList from './components/hal-cust/PriceList.vue'
+import Home from './pages/hal-admin/Home.vue'
+import DaftarBooking from './pages/hal-admin/DaftarBooking.vue'
+import Kalender from './pages/hal-admin/Kalender.vue'
+import PaketFoto from './pages/hal-admin/PaketFoto.vue'
+import RekapBooking from './pages/hal-admin/RekapBooking.vue'
+import HalUtama from './pages/hal-cust/HalUtama.vue'
+import PriceList from './pages/hal-cust/PriceList.vue'
+import About from './pages/hal-cust/About.vue'
 
 
 import { auth } from './firebase.js'
@@ -95,6 +96,11 @@ const routes = [
     //   title: 'paket foto',
     //   subtitle: 'Data Booking Customer yang telah dibooking'
     // }
+  }, 
+  {
+    path: '/about',
+    name: 'About',
+    component: About,
   }
 ];
 
