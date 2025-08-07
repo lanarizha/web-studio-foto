@@ -126,33 +126,66 @@
         <div v-if="formError" class="text-sm text-red-600 mb-2">{{ formError }}</div>
 
         <div class="space-y-3">
-          <input v-model="newBooking.nama" placeholder="Nama" class="w-full border px-3 py-2 rounded" />
-          <input v-model="newBooking.tanggal" type="date" class="w-full border px-3 py-2 rounded" />
+          <input
+            v-model="newBooking.nama"
+            placeholder="Nama"
+            class="w-full border px-3 py-2 rounded"
+          />
+          <input
+            v-model="newBooking.tanggal"
+            type="date"
+            class="w-full border px-3 py-2 rounded"
+          />
           <select v-model="newBooking.jam" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Jam</option>
-            <option 
-            v-for="jam in jamList"
-             :key="jam"
-              :disabled="kalenderTerpakai.includes(`${newBooking.tanggal} ${jam}`) && jam !== newBooking.jam"
-               :class="kalenderTerpakai.includes(`${newBooking.tanggal} ${jam}`) && jam !== newBooking.jam ? 'text-gray-400 line-through' : ''"
-               >{{ jam }}
-               </option>
+            <option
+              v-for="jam in jamList"
+              :key="jam"
+              :disabled="
+                kalenderTerpakai.includes(`${newBooking.tanggal} ${jam}`) &&
+                jam !== newBooking.jam
+              "
+              :class="
+                kalenderTerpakai.includes(`${newBooking.tanggal} ${jam}`) &&
+                jam !== newBooking.jam
+                  ? 'text-gray-400 line-through'
+                  : ''
+              "
+            >
+              {{ jam }}
+            </option>
           </select>
           <select v-model="newBooking.paket" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Paket</option>
-            <option v-for="paket in paketList" :key="paket" :value="paket">{{ paket }}</option>
+            <option v-for="paket in paketList" :key="paket" :value="paket">
+              {{ paket }}
+            </option>
           </select>
           <select v-model="newBooking.status" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Status</option>
             <option value="Pending">Pending</option>
             <option value="Confirmed">Confirmed</option>
           </select>
-          <textarea v-model="newBooking.catatan" placeholder="Catatan (opsional)" class="w-full border px-3 py-2 rounded"></textarea>
+          <textarea
+            v-model="newBooking.catatan"
+            placeholder="Catatan (opsional)"
+            class="w-full border px-3 py-2 rounded"
+          ></textarea>
         </div>
 
         <div class="mt-4 flex justify-end space-x-2">
-          <button @click="cancelAdd" class="px-4 py-2 text-sm bg-gray-300 rounded hover:bg-gray-400">Batal</button>
-          <button @click="submitBooking" class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">Simpan</button>
+          <button
+            @click="cancelAdd"
+            class="px-4 py-2 text-sm bg-gray-300 rounded hover:bg-gray-400"
+          >
+            Batal
+          </button>
+          <button
+            @click="submitBooking"
+            class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Simpan
+          </button>
         </div>
       </div>
     </div>
@@ -166,34 +199,66 @@
         <h3 class="text-lg font-bold mb-4">Edit Booking</h3>
 
         <div class="space-y-3">
-          <input v-model="editForm.nama" placeholder="Nama" class="w-full border px-3 py-2 rounded" />
-          <input v-model="editForm.tanggal" type="date" class="w-full border px-3 py-2 rounded" />
+          <input
+            v-model="editForm.nama"
+            placeholder="Nama"
+            class="w-full border px-3 py-2 rounded"
+          />
+          <input
+            v-model="editForm.tanggal"
+            type="date"
+            class="w-full border px-3 py-2 rounded"
+          />
           <select v-model="editForm.jam" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Jam</option>
             <option
               v-for="jam in jamList"
               :key="jam"
-              :disabled="kalenderTerpakai.includes(`${editForm.tanggal} ${jam}`) && jam !== editForm.jam"
-              :class="kalenderTerpakai.includes(`${editForm.tanggal} ${jam}`) && jam !== editForm.jam ? 'text-gray-400 line-through' : ''"
+              :disabled="
+                kalenderTerpakai.includes(`${editForm.tanggal} ${jam}`) &&
+                jam !== editForm.jam
+              "
+              :class="
+                kalenderTerpakai.includes(`${editForm.tanggal} ${jam}`) &&
+                jam !== editForm.jam
+                  ? 'text-gray-400 line-through'
+                  : ''
+              "
             >
               {{ jam }}
             </option>
           </select>
           <select v-model="editForm.paket" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Paket</option>
-            <option v-for="paket in paketList" :key="paket" :value="paket">{{ paket }}</option>
+            <option v-for="paket in paketList" :key="paket" :value="paket">
+              {{ paket }}
+            </option>
           </select>
           <select v-model="editForm.status" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Status</option>
             <option value="Pending">Pending</option>
             <option value="Confirmed">Confirmed</option>
           </select>
-          <textarea v-model="editForm.catatan" placeholder="Catatan (opsional)" class="w-full border px-3 py-2 rounded"></textarea>
+          <textarea
+            v-model="editForm.catatan"
+            placeholder="Catatan (opsional)"
+            class="w-full border px-3 py-2 rounded"
+          ></textarea>
         </div>
 
         <div class="mt-4 flex justify-end space-x-2">
-          <button @click="cancelEdit" class="px-4 py-2 text-sm bg-gray-300 rounded hover:bg-gray-400">Batal</button>
-          <button @click="saveEdit" class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
+          <button
+            @click="cancelEdit"
+            class="px-4 py-2 text-sm bg-gray-300 rounded hover:bg-gray-400"
+          >
+            Batal
+          </button>
+          <button
+            @click="saveEdit"
+            class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Simpan
+          </button>
         </div>
       </div>
     </div>
@@ -201,7 +266,7 @@
 </template>
 
 <script>
-import LayoutPage from '../../layouts/layout-admin/LayoutPage.vue'
+import LayoutPage from "../../layouts/layout-admin/LayoutPage.vue";
 
 export default {
   name: "BookingTable",
@@ -219,7 +284,18 @@ export default {
       bookings: [],
       kalenderTerpakai: [],
       formError: "",
-      jamList: ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00"],
+      jamList: [
+        "08:00",
+        "09:00",
+        "10:00",
+        "11:00",
+        "12:00",
+        "13:00",
+        "14:00",
+        "15:00",
+        "16:00",
+        "17:00",
+      ],
       paketList: [
         "Paket Studio📸",
         "Paket Keluarga👨‍👩‍👧‍👦",
@@ -276,11 +352,13 @@ export default {
       this.editForm = { ...booking };
       this.refreshKalenderTerpakai(booking.tanggal);
       this.showEditModal = true;
-    }, 
+    },
     saveEdit() {
       const key = `${this.editForm.tanggal} ${this.editForm.jam}`;
       const allKalender = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
-      const oldKey = `${this.bookings[this.editIndex].tanggal} ${this.bookings[this.editIndex].jam}`;
+      const oldKey = `${this.bookings[this.editIndex].tanggal} ${
+        this.bookings[this.editIndex].jam
+      }`;
 
       if (key !== oldKey && allKalender.includes(key)) {
         alert("Slot waktu ini sudah dipakai orang lain.");
@@ -361,14 +439,14 @@ export default {
       }
     },
   },
- watch: {
-  "newBooking.tanggal"(val) {
-    if (val) this.refreshKalenderTerpakai(val);
+  watch: {
+    "newBooking.tanggal"(val) {
+      if (val) this.refreshKalenderTerpakai(val);
+    },
+    "editForm.tanggal"(val) {
+      if (val) this.refreshKalenderTerpakai(val);
+    },
   },
-  "editForm.tanggal"(val) {
-    if (val) this.refreshKalenderTerpakai(val);
-  },
-},
 
   mounted() {
     this.loadFromLocalStorage();
