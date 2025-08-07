@@ -1,7 +1,10 @@
 <template>
   <div class="app-container">
+    <!-- Tombol Toggle Sidebar untuk Mobile -->
+    <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen">☰</button>
+
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
       <div class="logo-section">
         <img src="../../assets/logo.png" alt="Logo CanEls Studio" class="logo-img" />
         <h1 class="studio-name">CanEls Studio</h1>
@@ -11,19 +14,19 @@
       <div id="nav" class="menu">
         <ul>
           <li :class="{ active: currentPage === 'home' }">
-            <router-link to="/home">🏠 Home</router-link>
+            <router-link to="/home" @click.native="sidebarOpen = false">🏠 Home</router-link>
           </li>
           <li :class="{ active: currentPage === 'daftarBooking' }">
-            <router-link to="/daftarBooking">📋 Daftar Booking</router-link>
+            <router-link to="/daftarBooking" @click.native="sidebarOpen = false">📋 Daftar Booking</router-link>
           </li>
           <li :class="{ active: currentPage === 'kalender' }">
-            <router-link to="/kalender">🗓️ Kalender Booking</router-link>
+            <router-link to="/kalender" @click.native="sidebarOpen = false">🗓️ Kalender Booking</router-link>
           </li>
           <li :class="{ active: currentPage === 'paketfoto' }">
-            <router-link to="/paketfoto">📸 Paket Foto</router-link>
+            <router-link to="/paketfoto" @click.native="sidebarOpen = false">📸 Paket Foto</router-link>
           </li>
           <li :class="{ active: currentPage === 'rekapbooking' }">
-            <router-link to="/rekapbooking">📊 Rekap Booking</router-link>
+            <router-link to="/rekapbooking" @click.native="sidebarOpen = false">📊 Rekap Booking</router-link>
           </li>
         </ul>
       </div>
@@ -50,7 +53,8 @@ export default {
     return {
       currentPage: "",
       pageTitle: "",
-      pageSubtitle: ""
+      pageSubtitle: "",
+      sidebarOpen: false
     };
   },
   methods: {
@@ -90,7 +94,7 @@ export default {
   background-color: #fff0f5;
 }
 
-/* Sidebar Pastel */
+/* Sidebar */
 .sidebar {
   width: 280px;
   background: linear-gradient(to bottom, #f9e0ff, #ffe2e2);
@@ -101,6 +105,7 @@ export default {
   height: 100vh;
   overflow-y: auto;
   border-right: 3px dashed #fbcfe8;
+  transition: left 0.3s ease;
 }
 
 /* Logo */
@@ -169,7 +174,7 @@ export default {
   display: block;
 }
 
-/* Main Content Area */
+/* Main Content */
 .content-area {
   flex: 1;
   padding: 2.5rem 3rem;
@@ -207,5 +212,66 @@ export default {
   box-shadow: 0 2px 8px rgba(249, 168, 212, 0.2);
   font-size: 1.1rem;
   color: #4b5563;
+}
+
+/* Tombol Toggle Sidebar */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1000;
+  background-color: #fbcfe8;
+  border: none;
+  font-size: 1.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  color: #831843;
+  cursor: pointer;
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 75%;
+    max-width: 280px;
+    height: 100%;
+    z-index: 999;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .content-area {
+    padding: 1.5rem;
+    margin-top: 3.5rem;
+  }
+
+  .content-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .content-body {
+    padding: 1.5rem;
+    font-size: 1rem;
+  }
 }
 </style>
