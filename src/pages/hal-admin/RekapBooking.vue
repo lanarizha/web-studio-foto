@@ -1,32 +1,45 @@
 <template>
   <LayoutPage title="Rekap Booking">
-    <section class="max-w-7xl mx-auto p-6">
+    <section class="max-w-7xl mx-auto p-4 sm:p-6">
       <!-- Header -->
-      <div class="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-start gap-4 sm:gap-6 mb-6 sm:mb-8">
         <div>
-          <!-- <h2 class="text-3xl font-bold text-pink-500">📸 Rekap Booking</h2> -->
           <p class="text-sm text-gray-500 mt-1">
-            Bulan: <span class="text-purple-600 font-semibold">{{ months[selectedMonth - 1] }} {{ selectedYear }}</span>
+            Bulan:
+            <span class="text-purple-600 font-semibold">
+              {{ months[selectedMonth - 1] }} {{ selectedYear }}
+            </span>
           </p>
         </div>
+
         <!-- Navigasi Kalender -->
-        <div class="flex gap-4 items-center">
-          <button @click="prevMonth" class="bg-pink-200 hover:bg-pink-300 text-pink-700 rounded-lg px-4 py-2">‹ Bulan Sebelumnya</button>
-          <button @click="nextMonth" class="bg-purple-200 hover:bg-purple-300 text-purple-700 rounded-lg px-4 py-2">Bulan Selanjutnya ›</button>
+        <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center w-full sm:w-auto">
+          <button
+            @click="prevMonth"
+            class="bg-pink-200 hover:bg-pink-300 text-pink-700 rounded-lg px-4 py-2 w-full sm:w-auto"
+          >
+            ‹ Bulan Sebelumnya
+          </button>
+          <button
+            @click="nextMonth"
+            class="bg-purple-200 hover:bg-purple-300 text-purple-700 rounded-lg px-4 py-2 w-full sm:w-auto"
+          >
+            Bulan Selanjutnya ›
+          </button>
         </div>
       </div>
 
       <!-- Kalender -->
-      <div class="bg-white rounded-3xl shadow-xl border border-pink-100 p-6 mb-10">
-        <div class="grid grid-cols-7 gap-4 text-center text-lg font-semibold text-purple-500 mb-4">
+      <div class="bg-white rounded-3xl shadow-xl border border-pink-100 p-4 sm:p-6 mb-10 overflow-x-auto">
+        <div class="grid grid-cols-7 gap-2 sm:gap-4 text-center text-sm sm:text-lg font-semibold text-purple-500 mb-4">
           <div v-for="day in days" :key="day" class="uppercase">{{ day }}</div>
         </div>
-        <div class="grid grid-cols-7 gap-4 text-center">
-          <div v-for="n in firstDayOffset" :key="'blank-' + n" class="h-20"></div>
+        <div class="grid grid-cols-7 gap-2 sm:gap-4 text-center">
+          <div v-for="n in firstDayOffset" :key="'blank-' + n" class="h-16 sm:h-20"></div>
           <div
             v-for="date in daysInMonth"
             :key="date"
-            class="h-20 flex items-center justify-center rounded-2xl transition-all duration-200 cursor-pointer text-lg font-semibold"
+            class="h-16 sm:h-20 flex items-center justify-center rounded-2xl transition-all duration-200 cursor-pointer text-sm sm:text-lg font-semibold"
             :class="{
               'bg-pink-400 text-white': date === selectedDate,
               'bg-purple-100 text-purple-700': isBookingDate(date),
@@ -40,35 +53,41 @@
       </div>
 
       <!-- Detail Rekap -->
-      <div class="grid md:grid-cols-2 gap-8">
+      <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
         <!-- Total Booking -->
-        <div class="bg-pink-100 p-6 rounded-2xl shadow-sm border border-pink-200">
-          <h3 class="text-xl font-semibold text-pink-700 mb-2">Total Booking Bulan Ini</h3>
-          <p class="text-4xl font-bold text-pink-600">{{ totalBookingBulanIni }}</p>
+        <div class="bg-pink-100 p-4 sm:p-6 rounded-2xl shadow-sm border border-pink-200">
+          <h3 class="text-lg sm:text-xl font-semibold text-pink-700 mb-2">Total Booking Bulan Ini</h3>
+          <p class="text-3xl sm:text-4xl font-bold text-pink-600">{{ totalBookingBulanIni }}</p>
         </div>
 
         <!-- Rekap Per Hari -->
-        <div class="bg-purple-100 p-6 rounded-2xl shadow-sm border border-purple-200">
-          <h3 class="text-xl font-semibold text-purple-700 mb-2">📅 Rekap Harian</h3>
+        <div class="bg-purple-100 p-4 sm:p-6 rounded-2xl shadow-sm border border-purple-200">
+          <h3 class="text-lg sm:text-xl font-semibold text-purple-700 mb-2">📅 Rekap Harian</h3>
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-gray-700">
+            <table class="w-full min-w-[400px] text-left text-sm sm:text-base text-gray-700">
               <thead class="bg-purple-200 text-purple-700">
                 <tr>
                   <th class="px-4 py-2">Tanggal</th>
                   <th class="px-4 py-2">Jumlah Booking</th>
+                  <th class="px-4 py-2">Jenis Paket</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  v-for="(jumlah, tanggal) in rekapPerHari"
+                  v-for="(data, tanggal) in rekapPerHari"
                   :key="tanggal"
                   class="even:bg-purple-50 border-t"
                 >
                   <td class="px-4 py-2">{{ tanggal }}</td>
-                  <td class="px-4 py-2">{{ jumlah }}</td>
+                  <td class="px-4 py-2">{{ data.jumlah }}</td>
+                  <td class="px-4 py-2">
+                    <ul class="list-disc list-inside space-y-1">
+                      <li v-for="(paket, index) in data.paket" :key="index">{{ paket }}</li>
+                    </ul>
+                  </td>
                 </tr>
                 <tr v-if="Object.keys(rekapPerHari).length === 0">
-                  <td colspan="2" class="px-4 py-4 text-center text-gray-400 italic">Belum ada booking</td>
+                  <td colspan="3" class="px-4 py-4 text-center text-gray-400 italic">Belum ada booking</td>
                 </tr>
               </tbody>
             </table>
@@ -76,10 +95,10 @@
         </div>
 
         <!-- Rekap Per Paket -->
-        <div class="md:col-span-2 bg-blue-100 p-6 rounded-2xl shadow-sm border border-blue-200">
-          <h3 class="text-xl font-semibold text-blue-700 mb-2">🎁 Rekap Paket Foto</h3>
+        <div class="md:col-span-2 bg-blue-100 p-4 sm:p-6 rounded-2xl shadow-sm border border-blue-200">
+          <h3 class="text-lg sm:text-xl font-semibold text-blue-700 mb-2">🎁 Rekap Paket Foto</h3>
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-gray-700">
+            <table class="w-full min-w-[400px] text-left text-sm sm:text-base text-gray-700">
               <thead class="bg-blue-200 text-blue-700">
                 <tr>
                   <th class="px-4 py-2">Paket</th>
@@ -143,7 +162,11 @@ export default {
       const result = {}
       for (const b of this.filteredBookings) {
         const tgl = this.formatTanggal(b.tanggal)
-        result[tgl] = (result[tgl] || 0) + 1
+        if (!result[tgl]) {
+          result[tgl] = { jumlah: 0, paket: [] }
+        }
+        result[tgl].jumlah++
+        result[tgl].paket.push(b.paket)
       }
       return result
     },
@@ -160,7 +183,7 @@ export default {
     isBookingDate() {
       return (date) => {
         const dateStr = date.toString().padStart(2, '0') + '-' + this.selectedMonth.toString().padStart(2, '0') + '-' + this.selectedYear
-        return Object.keys(this.rekapPerHari).includes(dateStr)
+        return Object.prototype.hasOwnProperty.call(this.rekapPerHari, dateStr)
       }
     }
   },
