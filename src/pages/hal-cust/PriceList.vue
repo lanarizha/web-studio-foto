@@ -1,13 +1,12 @@
 <script setup>
-// import LayoutPage from '../layoutt/LayoutPage.vue' // perbaiki path jika folder diganti ke layout/
 import Button from '../../components/Button.vue'
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import LayoutPage from '../../layouts/layout-cust/LayoutPage.vue'
 
-// Import gambar dari folder assets
+// Import gambar
 import prewedImage1 from '../../assets/prewed-1.jpg'
 import prewedImage2 from '../../assets/prewed-2.jpg'
-import prewedImage3 from '../../assets/prewed-3.JPG'  // pastikan nama file cocok
+import prewedImage3 from '../../assets/prewed-3.JPG'
 
 import bayiImage1 from '../../assets/bayi-1.jpg'
 import bayiImage2 from '../../assets/bayi-2.jpg'
@@ -29,7 +28,7 @@ import highImage1 from '../../assets/high-1.jpg'
 import highImage2 from '../../assets/high-2.jpg'
 import highImage3 from '../../assets/high-3.jpg'
 
-// Data paket foto
+// Daftar paket
 const paketList = ref([
   {
     nama: 'Paket Studio📸',
@@ -61,22 +60,21 @@ const paketList = ref([
   },
   {
     nama: 'Paket Wide Angle🖼️',
-    deskripsi: 'Foto wide angle adalah jenis foto yang diambil menggunakan lensa sudut lebar.',
+    deskripsi: 'Foto wide angle diambil menggunakan lensa sudut lebar.',
     fitur: ['2 photo print strip', 'All digital copies', 'Durasi 15 menit', 'max 6 orang'],
     harga: 65000,
     images: [wideImage1, wideImage2, wideImage3]
   },
   {
     nama: 'Paket High Angle📷',
-    deskripsi: 'Foto High Angle adalah jenis foto yang mengambil gambar dari sudut di atas objek.',
+    deskripsi: 'Foto dari sudut tinggi di atas objek.',
     fitur: ['8 photo print', 'All digital copies', 'Durasi 25 menit', 'max 6 orang'],
     harga: 250000,
     images: [highImage1, highImage2, highImage3]
   }
 ])
 
-
-// Slideshow
+// Slideshow otomatis
 const currentSlideIndex = ref({})
 const intervals = {}
 
@@ -106,7 +104,6 @@ const formBookingError = ref('')
 const bookingList = ref([])
 const kalenderTerpakai = ref([])
 
-// Load booking dari localStorage
 onMounted(() => {
   const saved = localStorage.getItem('bookingList')
   if (saved) {
@@ -114,7 +111,6 @@ onMounted(() => {
   }
 })
 
-// Simpan otomatis jika bookingList berubah
 watch(bookingList, (value) => {
   localStorage.setItem('bookingList', JSON.stringify(value))
 }, { deep: true })
@@ -163,19 +159,24 @@ function submitBookingForm() {
 </script>
 
 <template>
-<LayoutPage>
-  <!-- <LayoutPage pageTitle="Paket Foto 📷" pageSubtitle="Jelajahi pilihan paket foto terbaik untuk berbagai kebutuhan"> -->
+  <LayoutPage>
     <div class="rounded-xl shadow p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
           v-for="(paket, index) in paketList"
           :key="index"
-          class="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition bg-white flex flex-col"
+          class="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-transform duration-300 bg-white flex flex-col"
         >
-          <img
-            :src="paket.images[currentSlideIndex[index]]"
-            class="w-full h-52 object-cover transition-all duration-700 ease-in-out"
-          />
+          <!-- Gambar slideshow dengan transisi -->
+          <transition name="slide-fade" mode="out-in">
+            <img
+              :key="paket.images[currentSlideIndex[index]]"
+              :src="paket.images[currentSlideIndex[index]]"
+              class="w-full h-52 object-cover transition-all duration-700 ease-in-out rounded-t-2xl"
+            />
+          </transition>
+
+          <!-- Deskripsi tetap -->
           <div class="p-4 flex-1 flex flex-col justify-between">
             <div>
               <h4 class="text-xl font-semibold text-gray-800 mb-1">{{ paket.nama }}</h4>
@@ -193,33 +194,47 @@ function submitBookingForm() {
       </div>
 
       <!-- Modal Booking -->
-      <div v-if="showBookingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl w-full max-w-md">
-          <h3 class="text-xl font-semibold mb-4">Form Booking</h3>
-          <div class="space-y-3">
-            <input v-model="formBooking.nama" type="text" placeholder="Nama" class="w-full border px-3 py-2 rounded" />
-            <input v-model="formBooking.tanggal" type="date" class="w-full border px-3 py-2 rounded" />
-            <select v-model="formBooking.jam" class="w-full border px-3 py-2 rounded">
-              <option disabled value="">Pilih Jam</option>
-              <option
-                v-for="jam in ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']"
-                :key="jam"
-                :disabled="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)"
-                :class="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`) ? 'text-gray-400 line-through' : ''"
-              >
-                {{ jam }}
-              </option>
-            </select>
-            <input v-model="formBooking.paket" type="text" disabled class="w-full border px-3 py-2 rounded bg-gray-100" />
-            <textarea v-model="formBooking.catatan" placeholder="Catatan" class="w-full border px-3 py-2 rounded"></textarea>
-          </div>
-          <p v-if="formBookingError" class="text-red-500 text-sm mt-2">{{ formBookingError }}</p>
-          <div class="flex justify-end gap-2 mt-4">
-            <button @click="showBookingModal = false" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Batal</button>
-            <button @click="submitBookingForm" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Simpan</button>
+      <transition name="slide-fade">
+        <div v-if="showBookingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md transform transition-transform duration-300 scale-100">
+            <h3 class="text-2xl font-semibold mb-4 text-gray-800">Form Booking CanEls Studio</h3>
+            <div class="space-y-3">
+              <input v-model="formBooking.nama" type="text" placeholder="Nama" class="w-full border px-4 py-2 rounded-lg" />
+              <input v-model="formBooking.tanggal" type="date" class="w-full border px-4 py-2 rounded-lg" />
+              <select v-model="formBooking.jam" class="w-full border px-4 py-2 rounded-lg">
+                <option disabled value="">Pilih Jam</option>
+                <option
+                  v-for="jam in ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00']"
+                  :key="jam"
+                  :disabled="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)"
+                  :class="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`) ? 'text-gray-400 line-through' : ''"
+                >
+                  {{ jam }}
+                </option>
+              </select>
+              <input v-model="formBooking.paket" type="text" disabled class="w-full border px-4 py-2 rounded-lg bg-gray-100" />
+              <textarea v-model="formBooking.catatan" placeholder="Catatan" class="w-full border px-4 py-2 rounded-lg"></textarea>
+            </div>
+            <p v-if="formBookingError" class="text-red-500 text-sm mt-2">{{ formBookingError }}</p>
+            <div class="flex justify-end gap-2 mt-4">
+              <button @click="showBookingModal = false" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition">Batal</button>
+              <button @click="submitBookingForm" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">Simpan</button>
+            </div>
           </div>
         </div>
-      </div>
+      </transition>
     </div>
-</LayoutPage>
+  </LayoutPage>
 </template>
+
+<style scoped>
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+</style>
