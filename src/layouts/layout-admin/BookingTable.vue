@@ -13,21 +13,41 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(booking, index) in bookings" :key="index" class="border-t hover:bg-gray-50">
+        <tr
+          v-for="(booking, index) in bookings"
+          :key="index"
+          class="border-t hover:bg-gray-50"
+        >
           <td class="px-4 py-2 whitespace-nowrap">{{ booking.nama }}</td>
           <td class="px-4 py-2 whitespace-nowrap">{{ booking.tanggal }}</td>
           <td class="px-4 py-2 whitespace-nowrap">{{ booking.jam }}</td>
           <td class="px-4 py-2 whitespace-nowrap">{{ booking.paket }}</td>
           <td class="px-4 py-2 whitespace-nowrap">
-            <span :class="booking.status === 'Confirmed' ? 'text-green-600' : 'text-yellow-600'">
+            <span
+              :class="
+                booking.status === 'Confirmed' ? 'text-green-600' : 'text-yellow-600'
+              "
+            >
               {{ booking.status }}
             </span>
           </td>
           <td class="px-4 py-2 whitespace-nowrap">{{ booking.catatan }}</td>
           <td class="px-4 py-2 text-center space-x-2">
-            <button class="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600">Edit</button>
-            <button class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600">Hapus</button>
-            <button class="bg-gray-500 text-white px-2 py-1 rounded text-sm hover:bg-gray-600">Detail</button>
+            <button
+              class="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600"
+            >
+              Edit
+            </button>
+            <button
+              class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600"
+            >
+              Hapus
+            </button>
+            <button
+              class="bg-gray-500 text-white px-2 py-1 rounded text-sm hover:bg-gray-600"
+            >
+              Detail
+            </button>
           </td>
         </tr>
       </tbody>

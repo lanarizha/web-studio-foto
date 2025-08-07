@@ -2,7 +2,7 @@
   <div class="min-h-screen flex flex-col items-center justify-center bg-gray-50">
     <div class="text-center">
       <h1 class="text-6xl font-bold text-gray-900 mb-8">
-        Halo!, {{ user?.displayName || user?.email || 'User' }}
+        Halo!, {{ user?.displayName || user?.email || "User" }}
       </h1>
       <button
         @click="handleLogout"
@@ -17,17 +17,17 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase.js';
+import { ref, computed } from "vue";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase.js";
 
 export default {
-  name: 'DashboardPage',
+  name: "DashboardPage",
   props: {
     user: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   setup() {
     const loading = ref(false);
@@ -38,7 +38,7 @@ export default {
         await signOut(auth);
         // Logout berhasil, user akan diarahkan ke login
       } catch (err) {
-        console.error('Error logging out:', err);
+        console.error("Error logging out:", err);
       } finally {
         loading.value = false;
       }
@@ -46,8 +46,8 @@ export default {
 
     return {
       loading,
-      handleLogout
+      handleLogout,
     };
-  }
+  },
 };
-</script> 
+</script>
