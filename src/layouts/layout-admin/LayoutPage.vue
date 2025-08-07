@@ -11,22 +11,54 @@
         <p class="studio-slogan">"Abadikan Momen, Ciptakan Kenangan."</p>
       </div>
 
+      <!-- Ganti daftar menu dengan icon gambar -->
       <div id="nav" class="menu">
         <ul>
           <li :class="{ active: currentPage === 'home' }">
-            <router-link to="/home" @click.native="sidebarOpen = false">🏠 Home</router-link>
+            <router-link to="/home" @click.native="sidebarOpen = false">
+              <img
+                src="../../assets/family-life.gif"
+                alt="Home"
+                class="inline w-5 h-5 mr-2"
+              />
+              Home
+            </router-link>
           </li>
           <li :class="{ active: currentPage === 'daftarBooking' }">
-            <router-link to="/daftarBooking" @click.native="sidebarOpen = false">📋 Daftar Booking</router-link>
+            <router-link to="/daftarBooking" @click.native="sidebarOpen = false">
+              <img
+                src="../../assets/checklist.gif"
+                alt="Booking"
+                class="inline w-5 h-5 mr-2"
+              />
+              Daftar Booking
+            </router-link>
           </li>
           <li :class="{ active: currentPage === 'kalender' }">
-            <router-link to="/kalender" @click.native="sidebarOpen = false">🗓️ Kalender Booking</router-link>
+            <router-link to="/kalender" @click.native="sidebarOpen = false">
+              <img
+                src="../../assets/friendship-day.gif"
+                alt="Kalender"
+                class="inline w-5 h-5 mr-2"
+              />
+              Kalender Booking
+            </router-link>
           </li>
           <li :class="{ active: currentPage === 'paketfoto' }">
-            <router-link to="/paketfoto" @click.native="sidebarOpen = false">📸 Paket Foto</router-link>
+            <router-link to="/paketfoto" @click.native="sidebarOpen = false">
+              <img
+                src="../../assets/photo-gallery.gif"
+                alt="Paket Foto"
+                class="inline w-5 h-5 mr-2"
+              />
+              Paket Foto
+            </router-link>
           </li>
           <li :class="{ active: currentPage === 'rekapbooking' }">
-            <router-link to="/rekapbooking" @click.native="sidebarOpen = false">📊 Rekap Booking</router-link>
+            <router-link to="/rekapbooking" @click.native="sidebarOpen = false">
+              <img src="../../assets/files.gif" alt="Rekap" class="inline w-5 h-5 mr-2" />
+              Rekap Booking
+            </router-link>
           </li>
         </ul>
       </div>
@@ -54,7 +86,7 @@ export default {
       currentPage: "",
       pageTitle: "",
       pageSubtitle: "",
-      sidebarOpen: false
+      sidebarOpen: false,
     };
   },
   methods: {
@@ -71,7 +103,7 @@ export default {
       else if (path.includes("paketfoto")) this.currentPage = "paketfoto";
       else if (path.includes("rekapbooking")) this.currentPage = "rekapbooking";
       else this.currentPage = "";
-    }
+    },
   },
   mounted() {
     this.updatePageData();
@@ -79,8 +111,8 @@ export default {
   watch: {
     $route() {
       this.updatePageData();
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -134,7 +166,7 @@ export default {
 }
 
 .studio-slogan {
-  font-size: 0.80rem;
+  font-size: 0.8rem;
   color: #d946ef;
   font-style: italic;
   margin-top: 0.25rem;
@@ -226,7 +258,7 @@ export default {
   font-size: 1.5rem;
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   color: #831843;
   cursor: pointer;
 }
