@@ -6,51 +6,39 @@
     <!-- Sidebar -->
     <aside class="sidebar" :class="{ open: sidebarOpen }">
       <div class="logo-section">
-        <img src="../../assets/logo.png" alt="Logo CanEls Studio" class="logo-img" />
+        <img
+          src="../../assets/logo.png"
+          alt="Logo CanEls Studio"
+          class="logo-img spinBounce"
+        />
         <h1 class="studio-name">CanEls Studio</h1>
         <p class="studio-slogan">"Abadikan Momen, Ciptakan Kenangan."</p>
       </div>
 
-      <!-- Ganti daftar menu dengan icon gambar -->
+      <!-- Menu Navigasi -->
       <div id="nav" class="menu">
         <ul>
           <li :class="{ active: currentPage === 'home' }">
             <router-link to="/home" @click.native="sidebarOpen = false">
-              <img
-                src="../../assets/family-life.gif"
-                alt="Home"
-                class="inline w-5 h-5 mr-2"
-              />
+              <img src="../../assets/family-life.gif" alt="Home" class="inline w-5 h-5 mr-2" />
               Home
             </router-link>
           </li>
           <li :class="{ active: currentPage === 'daftarBooking' }">
             <router-link to="/daftarBooking" @click.native="sidebarOpen = false">
-              <img
-                src="../../assets/checklist.gif"
-                alt="Booking"
-                class="inline w-5 h-5 mr-2"
-              />
+              <img src="../../assets/checklist.gif" alt="Booking" class="inline w-5 h-5 mr-2" />
               Daftar Booking
             </router-link>
           </li>
           <li :class="{ active: currentPage === 'kalender' }">
             <router-link to="/kalender" @click.native="sidebarOpen = false">
-              <img
-                src="../../assets/friendship-day.gif"
-                alt="Kalender"
-                class="inline w-5 h-5 mr-2"
-              />
+              <img src="../../assets/friendship-day.gif" alt="Kalender" class="inline w-5 h-5 mr-2" />
               Kalender Booking
             </router-link>
           </li>
           <li :class="{ active: currentPage === 'paketfoto' }">
             <router-link to="/paketfoto" @click.native="sidebarOpen = false">
-              <img
-                src="../../assets/photo-gallery.gif"
-                alt="Paket Foto"
-                class="inline w-5 h-5 mr-2"
-              />
+              <img src="../../assets/photo-gallery.gif" alt="Paket Foto" class="inline w-5 h-5 mr-2" />
               Paket Foto
             </router-link>
           </li>
@@ -158,6 +146,20 @@ export default {
   border: 3px solid #fcd5ce;
 }
 
+/* Animasi Logo Putar + Mantul */
+@keyframes spinBounceAnim {
+  0%   { transform: rotate(0deg) translateY(0); }
+  25%  { transform: rotate(90deg) translateY(-5px); }
+  50%  { transform: rotate(180deg) translateY(0); }
+  75%  { transform: rotate(270deg) translateY(-5px); }
+  100% { transform: rotate(360deg) translateY(0); }
+}
+
+.spinBounce {
+  animation: spinBounceAnim 2s ease-in-out infinite;
+}
+
+/* Judul & Slogan */
 .studio-name {
   font-size: 1.5rem;
   font-weight: 800;
@@ -172,7 +174,7 @@ export default {
   margin-top: 0.25rem;
 }
 
-/* Navigation */
+/* Menu Navigasi */
 .menu ul {
   list-style: none;
   padding: 0;
@@ -206,7 +208,7 @@ export default {
   display: block;
 }
 
-/* Main Content */
+/* Konten Utama */
 .content-area {
   flex: 1;
   padding: 2.5rem 3rem;
@@ -216,7 +218,6 @@ export default {
   box-shadow: inset 0 0 10px #ffe4e6;
 }
 
-/* Header */
 .content-header {
   margin-bottom: 1.25rem;
   border-bottom: 3px dashed #f9a8d4;
@@ -235,7 +236,6 @@ export default {
   margin-top: 0.25rem;
 }
 
-/* Body */
 .content-body {
   flex-grow: 1;
   background-color: #fdf2f8;
