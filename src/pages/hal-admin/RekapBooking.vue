@@ -77,7 +77,7 @@
           class="bg-purple-100 p-4 sm:p-6 rounded-2xl shadow-sm border border-purple-200"
         >
           <h3 class="text-lg sm:text-xl font-semibold text-purple-700 mb-2">
-            📅 Rekap Harian
+             Rekap Harian
           </h3>
           <div class="overflow-x-auto">
             <table
@@ -121,7 +121,7 @@
           class="md:col-span-2 bg-blue-100 p-4 sm:p-6 rounded-2xl shadow-sm border border-blue-200"
         >
           <h3 class="text-lg sm:text-xl font-semibold text-blue-700 mb-2">
-            🎁 Rekap Paket Foto
+             Rekap Paket Foto
           </h3>
           <div class="overflow-x-auto">
             <table
