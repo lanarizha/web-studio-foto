@@ -1,10 +1,8 @@
 <template>
   <LayoutPage>
-    <!-- <div class="min-h-screen flex flex-col bg-white text-gray-900 transition-colors duration-300"> -->
-
     <!-- Filter Kategori -->
     <div
-      class="px-4 py-6 sticky top-0 z-40 bg-pink-100 bg-opacity/100 backdrop-blur-md shadow-md"
+      class="px-4 py-6 sticky top-0 z-40 bg-pink-100 bg-opacity-100 backdrop-blur-md shadow-md"
     >
       <div class="flex flex-wrap gap-3 justify-center">
         <button
@@ -24,7 +22,7 @@
     </div>
 
     <!-- Gallery -->
-    <main class="flex-grow px-2 sm:px-4 py-6 max-w-7xl mx-auto">
+    <main class="flex-grow px-2 sm:px-4 py-10 max-w-7xl mx-auto">
       <transition-group
         :name="transitionName"
         tag="section"
@@ -34,16 +32,14 @@
         <div
           v-for="(photo, index) in filteredPhotos"
           :key="photo.src"
-          :style="{ transitionDelay: index * 100 + 'ms' }"
-          :class="[
-            'bg-white p-1 sm:p-2 rounded-lg shadow hover:shadow-lg transition-all duration-300 cursor-pointer break-inside-avoid fade-item',
-          ]"
+          :style="{ ...getParallaxStyle(index), transitionDelay: index * 100 + 'ms' }"
+          class="bg-white p-1 sm:p-2 rounded-lg shadow-md hover:shadow-xl transition-all duration-500 cursor-pointer break-inside-avoid gallery-item fade-item"
           @click="openModal(photo)"
         >
           <img
             :src="photo.src"
             :alt="photo.alt"
-            class="w-full h-auto rounded-md object-cover transition-transform duration-300 ease-in-out hover:scale-105"
+            class="w-full h-auto rounded-md object-cover transition-all duration-500 ease-in-out hover:scale-105 hover:brightness-110"
             loading="lazy"
           />
         </div>
@@ -65,15 +61,39 @@
       </div>
     </transition>
 
-    <!-- </div> -->
+    <!-- Favorites Catalog -->
+    <div class="p-10 mt-16">
+      <h1 class="text-2xl font-bold text-center mb-5">Favorites Catalog</h1>
+      <p class="text-center mb-8">Pilih Frame Catalog Sesuai Dengan Mood Kamu</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div
+          v-for="(frame, idx) in frames"
+          :key="idx"
+          :style="{ 
+            animationDelay: idx * 150 + 'ms',
+            background: pastelGradients[idx % pastelGradients.length]
+          }"
+          class="rounded-lg shadow-lg p-5 flex flex-col items-center hover:shadow-xl transition-all duration-300 catalog-item"
+        >
+          <h2 class="text-lg font-semibold text-center mb-2">Variasi Frame</h2>
+          <p class="text-center mb-3">{{ frame.title }}</p>
+          <img
+            :src="frame.src"
+            :alt="frame.title"
+            class="object-contain w-full h-auto max-h-[250px] rounded-md shadow-sm mx-auto"
+          />
+        </div>
+      </div>
+    </div>
   </LayoutPage>
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from "vue";
+import { ref, computed, nextTick, onMounted, onUnmounted } from "vue";
 import LayoutPage from "../../layouts/layout-cust/LayoutPage.vue";
 
-// Import gambar
+// Import gambar gallery
 import img1 from "../../assets/bayi-1.jpg";
 import img2 from "../../assets/bayi-2.jpg";
 import img3 from "../../assets/bayi-3.webp";
@@ -99,6 +119,29 @@ import img22 from "../../assets/klg-4.jpeg";
 import img23 from "../../assets/studio-4.webp";
 import img24 from "../../assets/wide-4.jpg";
 
+// Import gambar frames catalog
+import Selfietime from "../../assets/frame-catalog-1.jpg";
+import Collab from "../../assets/frame-catalog-2.jpg";
+import License from "../../assets/frame-catalog-3.jpg";
+import Season from "../../assets/frame-catalog-4.jpg";
+
+// Gradien pastel untuk katalog
+const pastelGradients = [
+  "linear-gradient(135deg, #FFE4E1, #FFF0F5)",
+  "linear-gradient(135deg, #E0FFFF, #F0FFF0)",
+  "linear-gradient(135deg, #FFFACD, #FAFAD2)",
+  "linear-gradient(135deg, #E6E6FA, #F8F8FF)",
+];
+
+// Frames Catalog
+const frames = [
+  { title: "Selfie Time", src: Selfietime },
+  { title: "Collab Fanbase", src: Collab },
+  { title: "License", src: License },
+  { title: "Season", src: Season },
+];
+
+// Categories
 const categories = [
   "All Photos",
   "New Born",
@@ -108,6 +151,7 @@ const categories = [
   "Wide Angle",
   "High Angle",
 ];
+
 const activeCategory = ref("All Photos");
 const previousCategory = ref(activeCategory.value);
 
@@ -161,23 +205,35 @@ const transitionName = computed(() => {
   const newIndex = categories.indexOf(activeCategory.value);
   return newIndex > oldIndex ? "slide-left" : "slide-right";
 });
+
+// Parallax
+const scrollY = ref(0);
+function handleScroll() {
+  scrollY.value = window.scrollY;
+}
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
+});
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
+function getParallaxStyle(index) {
+  const offset = (scrollY.value * 0.05 * (index % 3 - 1)).toFixed(2);
+  return { transform: `translateY(${offset}px)` };
+}
 </script>
 
 <style scoped>
-/* Hindari pemotongan kolom */
 img {
   break-inside: avoid;
   border-radius: 0.5rem;
-  transition: transform 0.3s ease;
 }
 
-/* Fade zoom in per foto */
 .fade-item {
   opacity: 0;
   transform: scale(0.95);
   animation: fadeZoomIn 0.5s ease forwards;
 }
-
 @keyframes fadeZoomIn {
   to {
     opacity: 1;
@@ -185,7 +241,19 @@ img {
   }
 }
 
-/* Modal zoom */
+.catalog-item {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .zoom-enter-active,
 .zoom-leave-active {
   transition: all 0.4s ease;
@@ -199,9 +267,10 @@ img {
   transform: scale(0.85);
 }
 
-/* Slide left */
 .slide-left-enter-active,
-.slide-left-leave-active {
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
   transition: all 0.6s ease;
   will-change: transform, opacity;
 }
@@ -213,13 +282,6 @@ img {
   opacity: 0;
   transform: translateX(-50px);
 }
-
-/* Slide right */
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: all 0.6s ease;
-  will-change: transform, opacity;
-}
 .slide-right-enter-from {
   opacity: 0;
   transform: translateX(-50px);
@@ -229,8 +291,7 @@ img {
   transform: translateX(50px);
 }
 
-/* Hover tambahan */
-img:hover {
-  filter: brightness(1.05) saturate(1.1);
+.gallery-item {
+  will-change: transform;
 }
 </style>
