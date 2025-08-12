@@ -4,6 +4,11 @@
     <div
       class="px-4 py-6 sticky top-0 z-40 bg-pink-100 bg-opacity-100 backdrop-blur-md shadow-md"
     >
+
+    <div class="title-wrapper typing-wrapper">
+    <h1 class="title-container typing-wrapper">Our Service</h1>
+    </div>
+
       <div class="flex flex-wrap gap-3 justify-center">
         <button
           v-for="cat in categories"
@@ -63,7 +68,7 @@
 
     <!-- Favorites Catalog -->
     <div class="p-10 mt-16">
-      <h1 class="text-2xl font-bold text-center mb-5">Favorites Catalog</h1>
+      <h1 class="text-3xl font-bold text-center mb-5 text-pink-500 font-mono">Favorites Catalog</h1>
       <p class="text-center mb-8">Pilih Frame Catalog Sesuai Dengan Mood Kamu</p>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -294,4 +299,66 @@ img {
 .gallery-item {
   will-change: transform;
 }
+
+.title-wrapper {
+  padding-left: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* .title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+  margin-bottom: 1.5rem;
+} */
+
+.title-container {
+  font-family: 'Courier New', Courier, monospace;
+  
+  font-size: 3.5rem;
+  color: #db2777; /* pink-600 */
+  text-shadow:
+    2px 2px 4px rgba(219, 39, 119, 0.5),
+    0 0 10px rgba(219, 39, 119, 0.3);
+  letter-spacing: 0.1em;
+  user-select: none;
+  margin: 0;
+}
+
+
+.typing-wrapper {
+  width: fit-content;
+  overflow: hidden; 
+  border-right: 3px solid #db2777; 
+  white-space: nowrap;
+  animation: typing 3s steps(11) forwards, blink-caret 0.75s step-end infinite;
+  margin: 0 auto;
+  font-family: monospace;
+  font-size: 3rem;
+  color: #db2777;
+  text-shadow:
+    2px 2px 4px rgba(219, 39, 119, 0.5),
+    0 0 10px rgba(219, 39, 119, 0.3);
+  user-select: none;
+}
+
+
+/* Animasi kursor berkedip */
+@keyframes blink-caret {
+  50% {
+    border-color: transparent;
+  }
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 14ch; }          
+}
+
+@keyframes blinkCaret {
+  50% { border-color: transparent; }
+  100% { border-color: black; }
+}
+
 </style>
