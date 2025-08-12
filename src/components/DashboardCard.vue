@@ -16,6 +16,7 @@ const pastelColors = {
 </script>
 
 <template>
+  
   <div
     class="p-5 rounded-2xl shadow-sm flex items-center gap-4 border-l-8 transition hover:scale-[1.015] hover:shadow-md duration-300"
     :class="pastelColors[theme]"
@@ -34,3 +35,5 @@ const pastelColors = {
     </div>
   </div>
 </template>
+
+

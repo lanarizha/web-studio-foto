@@ -18,15 +18,17 @@ import PriceList from './pages/hal-cust/PriceList.vue'
 import About from './pages/hal-cust/About.vue'
 import Kontak from './pages/hal-cust/Kontak.vue'
 
-
+// ✅ Icon langsung di-import
+import homeIcon from './assets/family-life.gif'
+import daftarIcon from './assets/checklist.gif'
+import kalenderIcon from './assets/friendship-day.gif'
+import fotoIcon from './assets/photo-gallery.gif'
+import rekapIcon from './assets/files.gif'
 
 import { auth } from './firebase.js'
 import { onAuthStateChanged } from 'firebase/auth'
 
-// router setup tetap sama seperti sebelumnya...
-
-
-// Rute
+// ✅ Rute dengan icon benar (tanpa tanda kutip di variabel)
 const routes = [
   { path: '/', name: 'Login', component: LoginPage },
   {
@@ -42,7 +44,8 @@ const routes = [
     component: Home,
     meta: {
       title: 'Home',
-      subtitle: 'Ringkasan Halaman Utama'
+      subtitle: 'Ringkasan Halaman Utama',
+      icon: homeIcon
     }
   },
   {
@@ -51,7 +54,8 @@ const routes = [
     component: DaftarBooking,
     meta: {
       title: 'Daftar Booking Customer',
-      subtitle: 'Lihat dan kelola jadwal yang telah dibooking oleh pelanggan'
+      subtitle: 'Lihat dan kelola jadwal yang telah dibooking oleh pelanggan',
+      icon: daftarIcon
     }
   },
   {
@@ -60,7 +64,8 @@ const routes = [
     component: Kalender,
     meta: {
       title: 'Kalender Booking',
-      subtitle: 'Tanggal dan waktu booking customer'
+      subtitle: 'Tanggal dan waktu booking customer',
+      icon: kalenderIcon
     }
   },
   {
@@ -69,7 +74,8 @@ const routes = [
     component: PaketFoto,
     meta: {
       title: 'Paket Foto',
-      subtitle: 'Jelajahi pilihan paket foto yang tersedia untuk pelanggan'
+      subtitle: 'Jelajahi pilihan paket foto yang tersedia untuk pelanggan',
+      icon: fotoIcon
     }
   },
   {
@@ -78,37 +84,14 @@ const routes = [
     component: RekapBooking,
     meta: {
       title: 'Rekap Booking Customer',
-      subtitle: 'Data Booking Customer yang telah dibooking'
+      subtitle: 'Data Booking Customer yang telah dibooking',
+      icon: rekapIcon
     }
   },
-  {
-    path: '/halamanutama',
-    name: 'HalUtama',
-    component: HalUtama,
-    // meta: {
-    //   title: 'Halaman utama',
-    //   subtitle: 'Data Booking Customer yang telah dibooking'
-    // }
-  },
-  {
-    path: '/pricelist',
-    name: 'Pricelist',
-    component: PriceList,
-    // meta: {
-    //   title: 'paket foto',
-    //   subtitle: 'Data Booking Customer yang telah dibooking'
-    // }
-  }, 
-  {
-    path: '/about',
-    name: 'About',
-    component: About,
-  },
-  {
-    path: '/kontak',
-    name: 'Kontak',
-    component: Kontak,
-  }
+  { path: '/halamanutama', name: 'HalUtama', component: HalUtama },
+  { path: '/pricelist', name: 'Pricelist', component: PriceList },
+  { path: '/about', name: 'About', component: About },
+  { path: '/kontak', name: 'Kontak', component: Kontak }
 ];
 
 const router = createRouter({

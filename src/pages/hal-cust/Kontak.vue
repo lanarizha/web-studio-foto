@@ -124,7 +124,18 @@ import LayoutPage from "../../layouts/layout-cust/LayoutPage.vue";
 </script>
 
 <style scoped>
-@keyframes fade-in {
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -135,7 +146,15 @@ import LayoutPage from "../../layouts/layout-cust/LayoutPage.vue";
   }
 }
 
+.animate-fade-in-down {
+  animation: fadeInDown 1s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 1s ease-out;
+}
+
 .animate-fade-in {
-  animation: fade-in 0.6s ease-out both;
+  animation: fadeInDown 0.9s ease-out;
 }
 </style>

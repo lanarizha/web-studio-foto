@@ -54,10 +54,19 @@
 
     <!-- Konten Utama -->
     <main class="content-area" role="main">
-      <header class="content-header">
-        <h2>{{ pageTitle }}</h2>
-        <p class="page-subtitle">{{ pageSubtitle }}</p>
-      </header>
+      <header v-if="$route.meta.title" class="page-header">
+    <img
+      v-if="$route.meta.icon"
+      :src="$route.meta.icon"
+      alt="icon"
+      class="page-icon"
+    />
+    <div>
+      <h1>{{ $route.meta.title }}</h1>
+      <p v-if="$route.meta.subtitle">{{ $route.meta.subtitle }}</p>
+    </div>
+  </header>
+
 
       <section class="content-body">
         <slot />
@@ -224,6 +233,46 @@ export default {
   padding-bottom: 0.75rem;
 }
 
+/* Header halaman */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(to right, #fff, #fdf4ff);
+  border-left: 5px solid #ec4899;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 10px rgba(236, 72, 153, 0.15);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, #ec4899, #9333ea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 1px 1px 2px rgba(236, 72, 153, 0.2);
+  letter-spacing: 0.5px;
+}
+
+
+.page-header p {
+  font-size: 1rem;
+  color: #a855f7;
+  font-style: italic;
+  margin-top: 0.2rem;
+  text-shadow: 0 1px 2px rgba(168, 85, 247, 0.1);
+}
+
+.page-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  animation: bounceIcon 1.5s infinite ease-in-out;
+}
+
 .content-header h2 {
   font-size: 2rem;
   font-weight: 800;
@@ -246,22 +295,21 @@ export default {
   color: #4b5563;
 }
 
-/* Tombol Toggle Sidebar */
+/* Tombol toggle */
 .sidebar-toggle {
   display: none;
   position: fixed;
   top: 1rem;
   left: 1rem;
-  z-index: 1000;
   background-color: #fbcfe8;
   border: none;
   font-size: 1.5rem;
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   color: #831843;
   cursor: pointer;
 }
+
 
 /* Responsive Layout */
 @media (max-width: 768px) {
@@ -284,26 +332,35 @@ export default {
     transition: left 0.3s ease;
   }
 
-  .sidebar.open {
-    left: 0;
-  }
 
-  .content-area {
+
+  /* .sidebar.open {
+    left: 0;
+  } */
+
+  /* .content-area {
     padding: 1.5rem;
     margin-top: 3.5rem;
-  }
+  } */
+}
 
-  .content-header h2 {
-    font-size: 1.5rem;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
   }
-
-  .page-subtitle {
-    font-size: 0.9rem;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  .content-body {
-    padding: 1.5rem;
-    font-size: 1rem;
+@keyframes bounceIcon {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
   }
 }
 </style>

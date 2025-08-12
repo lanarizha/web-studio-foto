@@ -14,7 +14,8 @@
             alt="Logo"
             class="h-20 w-20 object-contain rounded-full border-4 border-pink-100 shadow-lg transition-transform hover:rotate-6 hover:scale-105 duration-300"
           />
-          <div class="flex flex-col">
+          
+          <div class="flex flex-col">  
             <h1 class="text-2xl font-extrabold text-pink-700 leading-tight">
               CanEls Studio
             </h1>
@@ -41,6 +42,7 @@
             class="text-purple-700 font-semibold hover:text-yellow-400 transition-colors duration-300"
             >About Us</router-link
           >
+
           <router-link
             to="/kontak"
             class="text-purple-700 font-semibold hover:text-yellow-400 transition-colors duration-300"

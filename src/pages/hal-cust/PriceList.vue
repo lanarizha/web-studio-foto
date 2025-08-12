@@ -28,7 +28,7 @@ import highImage1 from "../../assets/high-1.jpg";
 import highImage2 from "../../assets/high-2.jpg";
 import highImage3 from "../../assets/high-3.jpg";
 
-// import icon gif
+// Import icon gif
 import iconStudio from "../../assets/studiocam.gif";
 import iconFamily from "../../assets/big-family.gif";
 import iconPrewed from "../../assets/wedding.gif";
@@ -94,9 +94,8 @@ const paketList = ref([
   },
 ]);
 
+// Booking
 const formBookingIcon = ref("");
-
-// Slideshow otomatis
 const currentSlideIndex = ref({});
 const intervals = {};
 
@@ -113,7 +112,6 @@ onBeforeUnmount(() => {
   Object.values(intervals).forEach(clearInterval);
 });
 
-// Booking
 const showBookingModal = ref(false);
 const formBooking = ref({
   nama: "",
@@ -128,35 +126,22 @@ const kalenderTerpakai = ref([]);
 
 onMounted(() => {
   const saved = localStorage.getItem("bookingList");
-  if (saved) {
-    bookingList.value = JSON.parse(saved);
-  }
+  if (saved) bookingList.value = JSON.parse(saved);
 });
 
 watch(
   bookingList,
-  (value) => {
-    localStorage.setItem("bookingList", JSON.stringify(value));
-  },
+  (value) => localStorage.setItem("bookingList", JSON.stringify(value)),
   { deep: true }
 );
 
 function openBookingForm(paketNama) {
   const paketDipilih = paketList.value.find(p => p.nama === paketNama);
-
-  formBookingIcon.value = paketDipilih?.iconSrc || iconForm; // set dulu icon
-  formBooking.value = {
-    nama: "",
-    tanggal: "",
-    jam: "",
-    paket: paketNama,
-    catatan: "",
-  };
+  formBookingIcon.value = paketDipilih?.iconSrc || iconForm;
+  formBooking.value = { nama: "", tanggal: "", jam: "", paket: paketNama, catatan: "" };
   formBookingError.value = "";
   showBookingModal.value = true;
-
-  const kalenderList = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
-  kalenderTerpakai.value = kalenderList;
+  kalenderTerpakai.value = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
 }
 
 function submitBookingForm() {
@@ -165,23 +150,14 @@ function submitBookingForm() {
     formBookingError.value = "Semua field wajib diisi ya sayang~💕";
     return;
   }
-
   const kalenderKey = `${tanggal} ${jam}`;
   if (kalenderTerpakai.value.includes(kalenderKey)) {
     formBookingError.value = "Slot waktu ini sudah dibooking orang lain 🕒";
     return;
   }
-
-  const newBooking = {
-    id: Date.now(),
-    status: "Pending",
-    ...formBooking.value,
-  };
-
-  bookingList.value.push(newBooking);
+  bookingList.value.push({ id: Date.now(), status: "Pending", ...formBooking.value });
   kalenderTerpakai.value.push(kalenderKey);
   localStorage.setItem("kalenderBookings", JSON.stringify(kalenderTerpakai.value));
-
   showBookingModal.value = false;
   alert("Booking berhasil disimpan!");
 }
@@ -196,21 +172,16 @@ function submitBookingForm() {
           :key="index"
           class="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-transform duration-300 bg-white flex flex-col"
         >
-          <!-- Gambar slideshow dengan transisi -->
           <transition name="slide-fade" mode="out-in">
             <img
               :key="paket.images[currentSlideIndex[index]]"
               :src="paket.images[currentSlideIndex[index]]"
-              class="w-full h-52 object-cover transition-all duration-700 ease-in-out rounded-t-2xl"
+              class="w-full h-52 object-cover rounded-t-2xl"
             />
           </transition>
-
-          <!-- Deskripsi tetap -->
           <div class="p-4 flex-1 flex flex-col justify-between">
             <div>
-              <h4
-                class="text-xl font-semibold text-gray-800 mb-1 flex items-center gap-2"
-              >
+              <h4 class="text-xl font-semibold text-gray-800 mb-1 flex items-center gap-2">
                 <span>{{ paket.nama }}</span>
                 <img :src="paket.iconSrc" alt="icon" class="w-8 h-8 object-contain" />
               </h4>
@@ -220,111 +191,113 @@ function submitBookingForm() {
               </ul>
             </div>
             <div class="mt-4 flex items-center justify-between">
-              <span class="text-lg text-green-600 font-bold"
-                >Rp {{ paket.harga.toLocaleString() }}</span
-              >
-              <Button
-                @click="openBookingForm(paket.nama)"
-                text="Pesan"
-                text-color="#3b3eff"
-                background-color="#e6908a"
-              />
+              <span class="text-lg text-green-600 font-bold">Rp {{ paket.harga.toLocaleString() }}</span>
+              <Button @click="openBookingForm(paket.nama)" text="Pesan" text-color="#3b3eff" background-color="#e6908a" />
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Modal Booking -->
-      <transition name="slide-fade">
-      <!-- Modal Booking -->
-<div
-  v-if="showBookingModal"
-  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
->
-  <div class="bg-white p-6 rounded-xl w-full max-w-md">
-    <!-- Judul Form Booking + iconForm -->
-    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-      <img :src="iconForm" alt="icon form" class="w-6 h-6 object-contain" />
-      Form Booking
-    </h3>
+      <!-- Modal -->
+ <transition name="modal-fade">
+  <div 
+    v-if="showBookingModal" 
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+  >
+    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-fadeIn">
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-pink-400 to-orange-400 p-5 flex items-center gap-3">
+        <img :src="iconForm" alt="icon form" class="w-8 h-8 object-contain drop-shadow" />
+        <h3 class="text-xl font-bold text-white">Form Booking</h3>
+      </div>
 
-    <!-- Judul nama paket + icon sesuai paket -->
-    <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-      <span>{{ formBooking.paket }}</span>
-      <img :src="formBookingIcon" alt="icon paket" class="w-6 h-6 object-contain" />
-    </h4>
+      <!-- Body -->
+      <div class="p-6 space-y-4">
+        <div class="flex items-center gap-3">
+          <img :src="formBookingIcon" alt="icon paket" class="w-8 h-8 object-contain" />
+          <h4 class="text-lg font-semibold text-gray-800">{{ formBooking.paket }}</h4>
+        </div>
 
-    <div class="space-y-3">
-      <input
-        v-model="formBooking.nama"
-        type="text"
-        placeholder="Nama"
-        class="w-full border px-3 py-2 rounded"
-      />
-      <input
-        v-model="formBooking.tanggal"
-        type="date"
-        class="w-full border px-3 py-2 rounded"
-      />
-      <select v-model="formBooking.jam" class="w-full border px-3 py-2 rounded">
-        <option disabled value="">Pilih Jam</option>
-        <option
-          v-for="jam in [
-            '08:00',
-            '09:00',
-            '10:00',
-            '11:00',
-            '12:00',
-            '13:00',
-            '14:00',
-            '15:00',
-            '16:00',
-            '17:00',
-          ]"
-          :key="jam"
-          :disabled="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)"
-          :class="
-            kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)
-              ? 'text-gray-400 line-through'
-              : ''
-          "
+        <!-- Input Nama -->
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">Nama Lengkap</label>
+          <input 
+            v-model="formBooking.nama"
+            type="text"
+            placeholder="Masukkan nama lengkap"
+            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+          />
+        </div>
+
+        <!-- Input Tanggal -->
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">Tanggal Booking</label>
+          <input 
+            v-model="formBooking.tanggal"
+            type="date"
+            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+          />
+        </div>
+
+        <!-- Pilih Jam -->
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">Pilih Jam</label>
+          <select 
+            v-model="formBooking.jam"
+            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+          >
+            <option disabled value="">Pilih Jam Disini</option>
+            <option
+              v-for="jam in ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00']"
+              :key="jam"
+              :disabled="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)"
+              :class="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`) ? 'text-gray-400 line-through' : ''"
+            >
+              {{ jam }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Catatan -->
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">Catatan</label>
+          <textarea
+            v-model="formBooking.catatan"
+            placeholder="Tulis catatan tambahan (opsional)"
+            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+          ></textarea>
+        </div>
+
+        <!-- Error -->
+        <p v-if="formBookingError" class="text-red-500 text-sm font-medium mt-1">
+          {{ formBookingError }}
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50">
+        <button 
+          @click="showBookingModal = false"
+          class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
         >
-          {{ jam }}
-        </option>
-      </select>
-      <textarea
-        v-model="formBooking.catatan"
-        placeholder="Catatan"
-        class="w-full border px-3 py-2 rounded"
-      ></textarea>
-    </div>
-
-    <p v-if="formBookingError" class="text-red-500 text-sm mt-2">
-      {{ formBookingError }}
-    </p>
-
-    <div class="flex justify-end gap-2 mt-4">
-      <button
-        @click="showBookingModal = false"
-        class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-      >
-        Batal
-      </button>
-      <button
-        @click="submitBookingForm"
-        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-      >
-        Simpan
-      </button>
+          Batal
+        </button>
+        <button 
+          @click="submitBookingForm"
+          class="px-4 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition shadow"
+        >
+          Simpan
+        </button>
+      </div>
     </div>
   </div>
-</div>
-      </transition>
+</transition>
     </div>
   </LayoutPage>
 </template>
 
-<style scoped>
+<style>
+/* Transisi gambar */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: opacity 0.5s ease, transform 0.5s ease;
@@ -333,5 +306,15 @@ function submitBookingForm() {
 .slide-fade-leave-to {
   opacity: 0;
   transform: translateY(10px);
+}
+
+/* Transisi modal */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 </style>
