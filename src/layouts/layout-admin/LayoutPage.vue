@@ -1,7 +1,9 @@
 <template>
   <div class="app-container">
     <!-- Tombol Toggle Sidebar untuk Mobile -->
-    <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen">☰</button>
+    <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen">
+      {{ sidebarOpen ? "✖" : "☰" }}
+    </button>
 
     <!-- Sidebar -->
     <aside class="sidebar" :class="{ open: sidebarOpen }">
@@ -19,31 +21,31 @@
       <div id="nav" class="menu">
         <ul>
           <li :class="{ active: currentPage === 'home' }">
-            <router-link to="/home" @click.native="sidebarOpen = false">
+            <router-link to="/home" @click.native="closeSidebar">
               <img src="../../assets/family-life.gif" alt="Home" class="inline w-5 h-5 mr-2" />
               Home
             </router-link>
           </li>
           <li :class="{ active: currentPage === 'daftarBooking' }">
-            <router-link to="/daftarBooking" @click.native="sidebarOpen = false">
+            <router-link to="/daftarBooking" @click.native="closeSidebar">
               <img src="../../assets/checklist.gif" alt="Booking" class="inline w-5 h-5 mr-2" />
               Daftar Booking
             </router-link>
           </li>
           <li :class="{ active: currentPage === 'kalender' }">
-            <router-link to="/kalender" @click.native="sidebarOpen = false">
+            <router-link to="/kalender" @click.native="closeSidebar">
               <img src="../../assets/friendship-day.gif" alt="Kalender" class="inline w-5 h-5 mr-2" />
               Kalender Booking
             </router-link>
           </li>
           <li :class="{ active: currentPage === 'paketfoto' }">
-            <router-link to="/paketfoto" @click.native="sidebarOpen = false">
+            <router-link to="/paketfoto" @click.native="closeSidebar">
               <img src="../../assets/photo-gallery.gif" alt="Paket Foto" class="inline w-5 h-5 mr-2" />
               Paket Foto
             </router-link>
           </li>
           <li :class="{ active: currentPage === 'rekapbooking' }">
-            <router-link to="/rekapbooking" @click.native="sidebarOpen = false">
+            <router-link to="/rekapbooking" @click.native="closeSidebar">
               <img src="../../assets/files.gif" alt="Rekap" class="inline w-5 h-5 mr-2" />
               Rekap Booking
             </router-link>
@@ -55,18 +57,17 @@
     <!-- Konten Utama -->
     <main class="content-area" role="main">
       <header v-if="$route.meta.title" class="page-header">
-    <img
-      v-if="$route.meta.icon"
-      :src="$route.meta.icon"
-      alt="icon"
-      class="page-icon"
-    />
-    <div>
-      <h1>{{ $route.meta.title }}</h1>
-      <p v-if="$route.meta.subtitle">{{ $route.meta.subtitle }}</p>
-    </div>
-  </header>
-
+        <img
+          v-if="$route.meta.icon"
+          :src="$route.meta.icon"
+          alt="icon"
+          class="page-icon"
+        />
+        <div>
+          <h1>{{ $route.meta.title }}</h1>
+          <p v-if="$route.meta.subtitle">{{ $route.meta.subtitle }}</p>
+        </div>
+      </header>
 
       <section class="content-body">
         <slot />
@@ -101,6 +102,9 @@ export default {
       else if (path.includes("rekapbooking")) this.currentPage = "rekapbooking";
       else this.currentPage = "";
     },
+    closeSidebar() {
+      this.sidebarOpen = false;
+    }
   },
   mounted() {
     this.updatePageData();
@@ -227,13 +231,6 @@ export default {
   box-shadow: inset 0 0 10px #ffe4e6;
 }
 
-.content-header {
-  margin-bottom: 1.25rem;
-  border-bottom: 3px dashed #f9a8d4;
-  padding-bottom: 0.75rem;
-}
-
-/* Header halaman */
 .page-header {
   display: flex;
   align-items: center;
@@ -253,17 +250,12 @@ export default {
   background: linear-gradient(90deg, #ec4899, #9333ea);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 1px 1px 2px rgba(236, 72, 153, 0.2);
-  letter-spacing: 0.5px;
 }
-
 
 .page-header p {
   font-size: 1rem;
   color: #a855f7;
   font-style: italic;
-  margin-top: 0.2rem;
-  text-shadow: 0 1px 2px rgba(168, 85, 247, 0.1);
 }
 
 .page-icon {
@@ -273,26 +265,12 @@ export default {
   animation: bounceIcon 1.5s infinite ease-in-out;
 }
 
-.content-header h2 {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #be185d;
-}
-
-.page-subtitle {
-  font-weight: 500;
-  color: #ec4899;
-  margin-top: 0.25rem;
-}
-
 .content-body {
   flex-grow: 1;
   background-color: #fdf2f8;
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(249, 168, 212, 0.2);
-  font-size: 1.1rem;
-  color: #4b5563;
 }
 
 /* Tombol toggle */
@@ -308,8 +286,8 @@ export default {
   border-radius: 8px;
   color: #831843;
   cursor: pointer;
+  z-index: 1000;
 }
-
 
 /* Responsive Layout */
 @media (max-width: 768px) {
@@ -329,19 +307,11 @@ export default {
     max-width: 280px;
     height: 100%;
     z-index: 999;
-    transition: left 0.3s ease;
   }
 
-
-
-  /* .sidebar.open {
+  .sidebar.open {
     left: 0;
-  } */
-
-  /* .content-area {
-    padding: 1.5rem;
-    margin-top: 3.5rem;
-  } */
+  }
 }
 
 @keyframes fadeIn {
