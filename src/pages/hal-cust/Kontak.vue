@@ -17,11 +17,13 @@
           class="bg-purple-100/50 p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-center"
         >
           <h2 class="text-2xl font-semibold mb-2 text-pink-700">Open Hours:</h2>
-          <p class="text-gray-600 font-medium mb-1">Everyday depends on the outlet</p>
+          <p class="text-gray-600 font-medium mb-1">
+            Everyday depends on the outlet
+          </p>
           <p class="text-gray-800 text-lg font-semibold">09:00 - 21:00 WIB</p>
         </div>
 
-        <!-- Call Card -->
+        <!-- Call Card (Admin) -->
         <div
           class="bg-pink-100/50 p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-center"
         >
@@ -45,13 +47,19 @@
               />
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-1 text-purple-700">Give Us A Call:</h3>
+          <h3 class="text-xl font-semibold mb-1 text-purple-700">
+            Give Us A Call:
+          </h3>
           <p class="text-gray-600">Admin</p>
+
+          <!-- Tombol Chat WhatsApp -->
           <a
-            href="tel:+6283890642797"
-            class="text-blue-600 hover:text-blue-800 hover:underline text-lg transition duration-300"
-            >+6283890642797</a
+            href="https://wa.me/6283890642797?text=Halo%20Admin,%20saya%20ingin%20bertanya%20tentang%20jasa%20foto."
+            target="_blank"
+            class="mt-4 inline-block bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-full shadow-md transition-all duration-300"
           >
+            💬 Chat Admin
+          </a>
         </div>
 
         <!-- Email Card -->
@@ -78,16 +86,19 @@
               />
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-1 text-blue-700">Send Us A Message:</h3>
+          <h3 class="text-xl font-semibold mb-1 text-blue-700">
+            Send Us A Message:
+          </h3>
           <a
-            href="mailto:CanElsStudio@gmail.com"
+            href="mailto:lelmmp97@gmail.com"
             class="text-blue-600 hover:text-blue-800 hover:underline text-lg transition duration-300"
-            >CanElsStudio@gmail.com</a
           >
+            CanElsStudio@gmail.com
+          </a>
         </div>
       </main>
 
-      <!-- WhatsApp Floating Button -->
+      <!-- WhatsApp Floating Button
       <a
         href="https://wa.me/6283890642797"
         target="_blank"
@@ -114,7 +125,7 @@
             d="M17.68 15.485a6.68 6.68 0 01-3.274.897 6.751 6.751 0 01-6.278-4.35l-.322-1.2 1.938-.408a.75.75 0 01.858.544l.278 1.072a.75.75 0 01-.354.815l-1.527.991m4.552-3.56l1.25 1.165"
           />
         </svg>
-      </a>
+      </a> -->
     </div>
   </LayoutPage>
 </template>
