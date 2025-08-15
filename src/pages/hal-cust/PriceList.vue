@@ -36,6 +36,7 @@ import iconBaby from "../../assets/newborn.gif";
 import iconWide from "../../assets/widecam.gif";
 import iconHigh from "../../assets/highcam.gif";
 import iconForm from "../../assets/browser-cursor.gif";
+import iconCamera from "../../assets/camera.gif";
 
 // Daftar paket
 const paketList = ref([
@@ -113,13 +114,7 @@ onBeforeUnmount(() => {
 });
 
 const showBookingModal = ref(false);
-const formBooking = ref({
-  nama: "",
-  tanggal: "",
-  jam: "",
-  paket: "",
-  catatan: "",
-});
+const formBooking = ref({ nama: "", tanggal: "", jam: "", paket: "", catatan: "" });
 const formBookingError = ref("");
 const bookingList = ref([]);
 const kalenderTerpakai = ref([]);
@@ -136,8 +131,6 @@ watch(
 );
 
 function openBookingForm(paketNama) {
-  const paketDipilih = paketList.value.find(p => p.nama === paketNama);
-  formBookingIcon.value = paketDipilih?.iconSrc || iconForm;
   formBooking.value = { nama: "", tanggal: "", jam: "", paket: paketNama, catatan: "" };
   formBookingError.value = "";
   showBookingModal.value = true;
@@ -165,7 +158,41 @@ function submitBookingForm() {
 
 <template>
   <LayoutPage>
-    <div class="rounded-xl shadow p-6">
+  <!-- Header -->
+    <div class="px-4 py-6 sticky top-0 z-40 bg-pink-100 bg-opacity-100 backdrop-blur-md shadow-md">
+    <div class="title-wrapper justify-center">
+  <h1 class="text-shadow-amber-200 typing-text">
+    Booking Studio In Here!
+    <img 
+      :src="iconCamera" 
+      alt="Camera Icon" 
+      class="inline-block w-12 h-10 object-contain ml-2 align-middle drop-shadow"
+    />
+  </h1>
+</div>
+</div>
+
+
+<!-- <div
+  class="px-4 py-6 sticky top-0 z-40 bg-pink-100 bg-opacity-100 backdrop-blur-md shadow-md"
+>
+  <div class="flex justify-center items-center gap-2"> -->
+    <!-- Teks dengan animasi typing -->
+    <!-- <h1 class="typing-text text-2xl font-bold">
+      Booking Studio In Here!
+    </h1> -->
+    <!-- Icon kamera -->
+    <!-- <img
+      :src="iconCamera"
+      alt="Camera Icon"
+      class="w-12 h-10 object-contain drop-shadow"
+    />
+  </div>
+</div> -->
+
+
+
+    <div class="full-bg-container rounded-xl shadow p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
           v-for="(paket, index) in paketList"
@@ -181,7 +208,9 @@ function submitBookingForm() {
           </transition>
           <div class="p-4 flex-1 flex flex-col justify-between">
             <div>
-              <h4 class="text-xl font-semibold text-gray-800 mb-1 flex items-center gap-2">
+              <h4
+                class="text-xl font-semibold text-gray-800 mb-1 flex items-center gap-2"
+              >
                 <span>{{ paket.nama }}</span>
                 <img :src="paket.iconSrc" alt="icon" class="w-8 h-8 object-contain" />
               </h4>
@@ -191,130 +220,299 @@ function submitBookingForm() {
               </ul>
             </div>
             <div class="mt-4 flex items-center justify-between">
-              <span class="text-lg text-green-600 font-bold">Rp {{ paket.harga.toLocaleString() }}</span>
-              <Button @click="openBookingForm(paket.nama)" text="Pesan" text-color="#3b3eff" background-color="#e6908a" />
+              <span class="text-lg text-green-600 font-bold"
+                >Rp {{ paket.harga.toLocaleString() }}</span
+              >
+              <Button
+                @click="openBookingForm(paket.nama)"
+                text="Pesan"
+                text-color="#3b3eff"
+                background-color="#e6908a"
+              />
             </div>
           </div>
         </div>
       </div>
 
       <!-- Modal -->
- <transition name="modal-fade">
-  <div 
-    v-if="showBookingModal" 
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
-  >
-    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-fadeIn">
-      <!-- Header -->
-      <div class="bg-gradient-to-r from-pink-400 to-orange-400 p-5 flex items-center gap-3">
-        <img :src="iconForm" alt="icon form" class="w-8 h-8 object-contain drop-shadow" />
-        <h3 class="text-xl font-bold text-white">Form Booking</h3>
-      </div>
-
-      <!-- Body -->
-      <div class="p-6 space-y-4">
-        <div class="flex items-center gap-3">
-          <img :src="formBookingIcon" alt="icon paket" class="w-8 h-8 object-contain" />
-          <h4 class="text-lg font-semibold text-gray-800">{{ formBooking.paket }}</h4>
-        </div>
-
-        <!-- Input Nama -->
-        <div>
-          <label class="block text-sm font-medium text-gray-600 mb-1">Nama Lengkap</label>
-          <input 
-            v-model="formBooking.nama"
-            type="text"
-            placeholder="Masukkan nama lengkap"
-            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-          />
-        </div>
-
-        <!-- Input Tanggal -->
-        <div>
-          <label class="block text-sm font-medium text-gray-600 mb-1">Tanggal Booking</label>
-          <input 
-            v-model="formBooking.tanggal"
-            type="date"
-            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-          />
-        </div>
-
-        <!-- Pilih Jam -->
-        <div>
-          <label class="block text-sm font-medium text-gray-600 mb-1">Pilih Jam</label>
-          <select 
-            v-model="formBooking.jam"
-            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+      <transition name="modal-fade">
+        <div
+          v-if="showBookingModal"
+          class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+        >
+          <div
+            class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-fadeIn relative"
           >
-            <option disabled value="">Pilih Jam Disini</option>
-            <option
-              v-for="jam in ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00']"
-              :key="jam"
-              :disabled="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)"
-              :class="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`) ? 'text-gray-400 line-through' : ''"
+            <!-- Header -->
+            <div
+              class="bg-gradient-to-r from-pink-400 to-orange-400 p-5 flex items-center justify-between"
             >
-              {{ jam }}
-            </option>
-          </select>
+              <!-- Kiri: ikon form -->
+              <div class="flex items-center gap-3">
+                <img
+                  :src="iconForm"
+                  alt="icon form"
+                  class="w-8 h-8 object-contain drop-shadow"
+                />
+                <h3 class="text-xl font-bold text-white">Form Booking</h3>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-4">
+              <div class="flex items-center gap-3">
+                <img
+                  :src="paketList.find((p) => p.nama === formBooking.paket)?.iconSrc"
+                  alt="icon paket"
+                  class="w-8 h-8 object-contain"
+                />
+                <h4 class="text-lg font-semibold text-gray-800">
+                  {{ formBooking.paket }}
+                </h4>
+              </div>
+              <!-- Input -->
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Nama Lengkap</label
+                >
+                <input
+                  v-model="formBooking.nama"
+                  type="text"
+                  placeholder="Masukkan nama lengkap"
+                  class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Tanggal Booking</label
+                >
+                <input
+                  v-model="formBooking.tanggal"
+                  type="date"
+                  class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Pilih Jam</label
+                >
+                <select
+                  v-model="formBooking.jam"
+                  class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                >
+                  <option disabled value="">Pilih Jam Disini</option>
+                  <option
+                    v-for="jam in [
+                      '08:00',
+                      '09:00',
+                      '10:00',
+                      '11:00',
+                      '12:00',
+                      '13:00',
+                      '14:00',
+                      '15:00',
+                      '16:00',
+                      '17:00',
+                    ]"
+                    :key="jam"
+                    :disabled="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)"
+                    :class="
+                      kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)
+                        ? 'text-gray-400 line-through'
+                        : ''
+                    "
+                  >
+                    {{ jam }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-600 mb-1"
+                  >Catatan</label
+                >
+                <textarea
+                  v-model="formBooking.catatan"
+                  placeholder="Tulis catatan tambahan (opsional)"
+                  class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+                ></textarea>
+              </div>
+              <p v-if="formBookingError" class="text-red-500 text-sm font-medium mt-1">
+                {{ formBookingError }}
+              </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50">
+              <button
+                @click="showBookingModal = false"
+                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
+              >
+                Batal
+              </button>
+              <button
+                @click="submitBookingForm"
+                class="px-4 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition shadow"
+              >
+                Simpan
+              </button>
+            </div>
+          </div>
         </div>
-
-        <!-- Catatan -->
-        <div>
-          <label class="block text-sm font-medium text-gray-600 mb-1">Catatan</label>
-          <textarea
-            v-model="formBooking.catatan"
-            placeholder="Tulis catatan tambahan (opsional)"
-            class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
-          ></textarea>
-        </div>
-
-        <!-- Error -->
-        <p v-if="formBookingError" class="text-red-500 text-sm font-medium mt-1">
-          {{ formBookingError }}
-        </p>
-      </div>
-
-      <!-- Footer -->
-      <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50">
-        <button 
-          @click="showBookingModal = false"
-          class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
-        >
-          Batal
-        </button>
-        <button 
-          @click="submitBookingForm"
-          class="px-4 py-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 transition shadow"
-        >
-          Simpan
-        </button>
-      </div>
-    </div>
-  </div>
-</transition>
+      </transition>
     </div>
   </LayoutPage>
 </template>
 
 <style>
-/* Transisi gambar */
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
+.full-bg-container {
+  min-height: 100vh;
+  width: 100%;
+  --s: clamp(60px, 8vw, 120px);
+  --c-inner: #adf;
+  --c-outer: skyblue;
+  --c-outer2: white;
+  background: radial-gradient(
+    circle at 50% 99%,
+    transparent 10%,
+    var(--c-inner) 10% 30%,
+    var(--c-outer) 30% 60%,
+    var(--c-outer2) 60% 100%,
+    transparent 100%
+  );
+  background-size: var(--s) var(--s);
+  background-repeat: repeat;
+  background-attachment: fixed;
+  animation: move 5s infinite linear;
 }
 
-/* Transisi modal */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.4s ease;
+@keyframes move {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
 }
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
+
+/* Basic layout resets so page responsive */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
+
+/* Container styling (kamu bisa pindahkan background ke body jika mau full bleed) */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title area */
+.title-wrapper {
+  padding-left: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+.title-container {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 3.5rem;
+  color: #db2777;
+  text-shadow: 2px 2px 4px rgba(219, 39, 119, 0.5);
+  letter-spacing: 0.1em;
+  margin: 0;
+  user-select: none;
+}
+
+.typing-wrapper {
+  width: fit-content;
+  overflow: hidden;
+  border-right: 3px solid #db2777;
+  white-space: nowrap;
+  animation: typing 3s steps(11) forwards, blink-caret 0.75s step-end infinite;
+  margin: 0 auto;
+  font-family: monospace;
+  font-size: 3rem;
+  color: #db2777;
+  text-shadow: 2px 2px 4px rgba(219, 39, 119, 0.5), 0 0 10px rgba(219, 39, 119, 0.3);
+  user-select: none;
+}
+
+/* typing effects */
+/* .typing-text {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 2.5rem;
+  color: #db2777;
+  border-right: 3px solid #db2777;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: typing 3s steps(31) forwards, blink-caret 0.75s step-end infinite;
+} */
+
+
+/* typing effects */
+.typing-text {
+  font-family: "Courier New", Courier, monospace;
+  color: #db2777;
+  border-right: 3px solid #db2777;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  animation: typing 3s steps(31) forwards, blink-caret 0.75s step-end 4; /* caret kedip 4x */
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to {
+    width: 17ch;
+    border-right: none; /* caret hilang */
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .typing-text {
+    font-size: 1.10rem;
+    animation: typing-sm 3s steps(20) forwards, blink-caret 0.75s step-end 4;
+  }
+}
+@keyframes typing-sm {
+  from { width: 0; }
+  to { width: 40ch; border-right: none; }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .typing-text {
+    font-size: 1.75rem;
+    animation: typing-md 3s steps(26) forwards, blink-caret 0.75s step-end 4;
+  }
+}
+@keyframes typing-md {
+  from { width: 0; }
+  to { width: 26ch; border-right: none; }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .typing-text {
+    font-size: 2.5rem;
+    animation: typing-lg 3s steps(31) forwards, blink-caret 0.75s step-end 4;
+  }
+}
+@keyframes typing-lg {
+  from { width: 0; }
+  to { width: 27ch; border-right: none; }
+}
+
+@keyframes blink-caret {
+  50% { border-color: transparent; }
+}
+
 </style>
