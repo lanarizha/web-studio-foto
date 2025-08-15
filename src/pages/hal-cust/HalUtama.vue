@@ -333,7 +333,6 @@ img {
 
 .title-container {
   font-family: "Courier New", Courier, monospace;
-
   font-size: 3.5rem;
   color: #db2777; /* pink-600 */
   text-shadow: 2px 2px 4px rgba(219, 39, 119, 0.5), 0 0 10px rgba(219, 39, 119, 0.3);
@@ -347,7 +346,7 @@ img {
   overflow: hidden;
   border-right: 3px solid #db2777;
   white-space: nowrap;
-  animation: typing 3s steps(11) forwards, blink-caret 0.75s step-end infinite;
+  animation: typing 3s steps(11) forwards, blink-caret 0.75s step-end 4;
   margin: 0 auto;
   font-family: monospace;
   font-size: 3rem;
@@ -364,14 +363,22 @@ img {
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
-  animation: typing 3s steps(31) forwards, blink-caret 0.75s step-end infinite;
+  animation: typing 3s steps(31) forwards, blink-caret 0.75s step-end 4; /* caret kedip 4x lalu hilang */
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { 
+    width: 17ch; 
+    border-right: none; /* caret hilang */
+  }
 }
 
 /* Mobile */
 @media (max-width: 640px) {
   .typing-text {
     font-size: 1.25rem; /* text-lg */
-    animation: typing-sm 3s steps(20) forwards, blink-caret 0.75s step-end infinite;
+    animation: typing-sm 3s steps(20) forwards, blink-caret 0.75s step-end 4;
   }
 }
 
@@ -379,7 +386,7 @@ img {
 @media (min-width: 641px) and (max-width: 1024px) {
   .typing-text {
     font-size: 1.75rem; /* text-xl */
-    animation: typing-md 3s steps(26) forwards, blink-caret 0.75s step-end infinite;
+    animation: typing-md 3s steps(26) forwards, blink-caret 0.75s step-end 4;
   }
 }
 
@@ -387,21 +394,30 @@ img {
 @media (min-width: 1025px) {
   .typing-text {
     font-size: 2.5rem; /* text-4xl */
-    animation: typing-lg 3s steps(31) forwards, blink-caret 0.75s step-end infinite;
+    animation: typing-lg 3s steps(31) forwards, blink-caret 0.75s step-end 4;
   }
 }
 
 @keyframes typing-sm {
   from { width: 0; }
-  to { width: 19ch; }
+  to { 
+    width: 19ch; 
+    border-right: none;
+  }
 }
 @keyframes typing-md {
   from { width: 0; }
-  to { width: 26ch; }
+  to { 
+    width: 26ch; 
+    border-right: none;
+  }
 }
 @keyframes typing-lg {
   from { width: 0; }
-  to { width: 17ch; }
+  to { 
+    width: 17ch; 
+    border-right: none;
+  }
 }
 
 @keyframes blink-caret {
@@ -416,3 +432,4 @@ button[aria-label="Close modal"]:hover {
   box-shadow: 0 0 12px rgba(219, 39, 119, 0.8);
 }
 </style>
+
