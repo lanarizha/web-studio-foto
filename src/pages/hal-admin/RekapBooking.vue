@@ -1,10 +1,8 @@
 <template>
   <LayoutPage title="Rekap Booking">
-    <section class="max-w-7xl mx-auto p-4 sm:p-6">
+    <section class="max-w-7xl mx-auto p-4">
       <!-- Header -->
-      <div
-        class="flex flex-col md:flex-row justify-between items-start gap-4 sm:gap-6 mb-6 sm:mb-8"
-      >
+      <div class="flex flex-row justify-between items-center gap-4 mb-6">
         <div>
           <p class="text-sm text-gray-500 mt-1">
             Bulan:
@@ -15,18 +13,16 @@
         </div>
 
         <!-- Navigasi Kalender -->
-        <div
-          class="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center w-full sm:w-auto"
-        >
+        <div class="flex flex-row gap-4 items-center">
           <button
             @click="prevMonth"
-            class="bg-pink-200 hover:bg-pink-300 text-pink-700 rounded-lg px-4 py-2 w-full sm:w-auto"
+            class="bg-pink-200 hover:bg-pink-300 text-pink-700 rounded-lg px-4 py-2"
           >
             ‹ Bulan Sebelumnya
           </button>
           <button
             @click="nextMonth"
-            class="bg-purple-200 hover:bg-purple-300 text-purple-700 rounded-lg px-4 py-2 w-full sm:w-auto"
+            class="bg-purple-200 hover:bg-purple-300 text-purple-700 rounded-lg px-4 py-2"
           >
             Bulan Selanjutnya ›
           </button>
@@ -35,7 +31,7 @@
 
       <!-- Header Hari -->
       <div
-        class="grid grid-cols-7 border border-gray-300 text-center text-sm sm:text-lg font-semibold text-purple-500"
+        class="grid grid-cols-7 border border-gray-300 text-center text-base font-semibold text-purple-500"
       >
         <div
           v-for="day in days"
@@ -52,14 +48,14 @@
         <div
           v-for="n in firstDayOffset"
           :key="'blank-start-' + n"
-          class="h-16 sm:h-20 border border-gray-300"
+          class="h-20 border border-gray-300"
         ></div>
 
         <!-- Tanggal -->
         <div
           v-for="date in daysInMonth"
           :key="date"
-          class="h-16 sm:h-20 flex items-center justify-center border border-gray-300 cursor-pointer text-sm sm:text-lg font-semibold transition-all duration-200"
+          class="h-20 flex items-center justify-center border border-gray-300 cursor-pointer text-base font-semibold transition-all duration-200"
           :class="{
             'bg-pink-400 text-white': date === selectedDate,
             'bg-purple-100 text-purple-700': isBookingDate(date),
@@ -72,98 +68,89 @@
       </div>
 
       <!-- Detail Rekap -->
-      <div class="grid md:grid-cols-2 gap-6 sm:gap-8">
+      <div class="flex justify-center">
         <!-- Total Booking -->
-       <div
-  class="bg-pink-100 p-4 rounded-2xl shadow-sm border border-pink-200 sm:p-6 mb-10 sm:mb-12 overflow-x-auto flex flex-col justify-center items-center text-center"
->
-  <h3 class="text-lg sm:text-xl font-semibold text-pink-700 mb-2">
-    Total Booking Bulan Ini
-  </h3>
-  <p class="text-3xl sm:text-4xl font-bold text-pink-600">
-    {{ totalBookingBulanIni }}
-  </p>
-</div>
-
-
-        <!-- Rekap Per Hari -->
         <div
-          class="bg-purple-100 p-4 sm:p-6 rounded-2xl shadow-sm border border-purple-200"
+          class="bg-pink-100 p-4 rounded-2xl shadow-sm border border-pink-200 mb-10 flex flex-col justify-center items-center text-center"
         >
-          <h3 class="text-lg sm:text-xl font-semibold text-purple-700 mb-2">
-            Rekap Harian
+          <h3 class="text-lg font-semibold text-pink-700 mb-2">
+            Total Booking Bulan Ini
           </h3>
-          <div class="overflow-x-auto">
-            <table
-              class="w-full min-w-[350px] sm:min-w-[400px] text-left text-xs sm:text-base text-gray-700"
-            >
-              <thead class="bg-purple-200 text-purple-700">
-                <tr>
-                  <th class="px-3 sm:px-4 py-2">Tanggal</th>
-                  <th class="px-3 sm:px-4 py-2">Jumlah Booking</th>
-                  <th class="px-3 sm:px-4 py-2">Jenis Paket</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(data, tanggal) in rekapPerHari"
-                  :key="tanggal"
-                  class="even:bg-purple-50 border-t"
-                >
-                  <td class="px-3 sm:px-4 py-2">{{ tanggal }}</td>
-                  <td class="px-3 sm:px-4 py-2">{{ data.jumlah }}</td>
-                  <td class="px-3 sm:px-4 py-2">
-                    <ul class="list-disc list-inside space-y-1">
-                      <li v-for="(paket, index) in data.paket" :key="index">
-                        {{ paket }}
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-                <tr v-if="Object.keys(rekapPerHari).length === 0">
-                  <td colspan="3" class="px-4 py-4 text-center text-gray-400 italic">
-                    Belum ada booking
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <p class="text-3xl font-bold text-pink-600">
+            {{ totalBookingBulanIni }}
+          </p>
         </div>
+      </div>
 
-        <!-- Rekap Per Paket -->
-        <div
-          class="md:col-span-2 bg-blue-100 p-4 sm:p-6 rounded-2xl shadow-sm border border-blue-200"
-        >
-          <h3 class="text-lg sm:text-xl font-semibold text-blue-700 mb-2">
-            Rekap Paket Foto
-          </h3>
-          <div class="overflow-x-auto">
-            <table
-              class="w-full min-w-[350px] sm:min-w-[400px] text-left text-xs sm:text-base text-gray-700"
-            >
-              <thead class="bg-blue-200 text-blue-700">
-                <tr>
-                  <th class="px-3 sm:px-4 py-2">Paket</th>
-                  <th class="px-3 sm:px-4 py-2">Jumlah Booking</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(jumlah, paket) in rekapPerPaket"
-                  :key="paket"
-                  class="even:bg-blue-50 border-t"
-                >
-                  <td class="px-3 sm:px-4 py-2">{{ paket }}</td>
-                  <td class="px-3 sm:px-4 py-2">{{ jumlah }}</td>
-                </tr>
-                <tr v-if="Object.keys(rekapPerPaket).length === 0">
-                  <td colspan="2" class="px-4 py-4 text-center text-gray-400 italic">
-                    Belum ada data
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <!-- Rekap Per Hari -->
+      <div
+        class="bg-purple-100 p-4 rounded-2xl shadow-sm border border-purple-200 mb-6 text-center"
+      >
+        <h3 class="text-lg font-semibold text-purple-700 mb-2">Rekap Harian</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[400px] text-left text-base text-gray-700">
+            <thead class="bg-purple-200 text-purple-700 text-center">
+              <tr>
+                <th class="px-4 py-2">Tanggal</th>
+                <th class="px-4 py-2">Jumlah Booking</th>
+                <th class="px-4 py-2">Jenis Paket</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(data, tanggal) in rekapPerHari"
+                :key="tanggal"
+                class="even:bg-purple-50 border-t text-center"
+              >
+                <td class="px-4 py-2">{{ tanggal }}</td>
+                <td class="px-4 py-2">{{ data.jumlah }}</td>
+                <td class="px-4 py-2">
+                  <ul class="list-disc list-inside space-y-1 text-left">
+                    <li v-for="(paket, index) in data.paket" :key="index">
+                      {{ paket }}
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              <tr v-if="Object.keys(rekapPerHari).length === 0">
+                <td colspan="3" class="px-4 py-4 text-center text-gray-400 italic">
+                  Belum ada booking
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Rekap Per Paket -->
+      <div
+        class="bg-blue-100 p-4 rounded-2xl shadow-sm border border-blue-200 text-center"
+      >
+        <h3 class="text-lg font-semibold text-blue-700 mb-2">Rekap Paket Foto</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[400px] text-left text-base text-gray-700">
+            <thead class="bg-blue-200 text-blue-700 text-center">
+              <tr>
+                <th class="px-4 py-2">Paket</th>
+                <th class="px-4 py-2">Jumlah Booking</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(jumlah, paket) in rekapPerPaket"
+                :key="paket"
+                class="even:bg-blue-50 border-t text-center"
+              >
+                <td class="px-4 py-2">{{ paket }}</td>
+                <td class="px-4 py-2">{{ jumlah }}</td>
+              </tr>
+              <tr v-if="Object.keys(rekapPerPaket).length === 0">
+                <td colspan="2" class="px-4 py-4 text-center text-gray-400 italic">
+                  Belum ada data
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
