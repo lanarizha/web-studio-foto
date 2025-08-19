@@ -16,10 +16,13 @@
         <div
           class="bg-purple-100/50 p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-center"
         >
+          <img
+            :src="clock"
+            alt="Camera Icon"
+            class="inline-block w-12 h-10 object-contain ml-2 align-middle drop-shadow"
+          />
           <h2 class="text-2xl font-semibold mb-2 text-pink-700">Open Hours:</h2>
-          <p class="text-gray-600 font-medium mb-1">
-            Everyday depends on the outlet
-          </p>
+          <p class="text-gray-600 font-medium mb-1">Everyday depends on the outlet</p>
           <p class="text-gray-800 text-lg font-semibold">09:00 - 21:00 WIB</p>
         </div>
 
@@ -27,29 +30,13 @@
         <div
           class="bg-pink-100/50 p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-center"
         >
-          <div class="flex justify-center mb-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-12 w-12 stroke-current text-purple-700 hover:text-green-600 transition-transform duration-300 hover:rotate-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3 5a2 2 0 012-2h3.6a1 1 0 011 .8 11.61 11.61 0 002.6 5.2 11.6 11.6 0 005.2 2.6 1 1 0 01.8 1V19a2 2 0 01-2 2h-1a16 16 0 01-13-13v-1z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M14.5 7a3.5 3.5 0 010 7"
-              />
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold mb-1 text-purple-700">
-            Give Us A Call:
-          </h3>
+          <img
+            :src="phone"
+            alt="Camera Icon"
+            class="inline-block w-12 h-10 object-contain ml-2 align-middle drop-shadow"
+          />
+          <div class="flex justify-center mb-3"></div>
+          <h3 class="text-xl font-semibold mb-1 text-purple-700">Give Us A Call:</h3>
           <p class="text-gray-600">Admin</p>
 
           <!-- Tombol Chat WhatsApp -->
@@ -67,28 +54,13 @@
           class="bg-blue-100/50 p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-center"
         >
           <div class="flex justify-center mb-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-12 w-12 stroke-current text-blue-700 hover:text-red-600 transition-transform duration-300 hover:-rotate-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3 10l7-7m0 0l7 7m-7-7v18"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M21 21v-6a2 2 0 00-2-2h-6"
-              />
-            </svg>
+            <img
+              :src="email"
+              alt="Camera Icon"
+              class="inline-block w-12 h-10 object-contain ml-2 align-middle drop-shadow"
+            />
           </div>
-          <h3 class="text-xl font-semibold mb-1 text-blue-700">
-            Send Us A Message:
-          </h3>
+          <h3 class="text-xl font-semibold mb-1 text-blue-700">Send Us A Message:</h3>
           <a
             href="mailto:lelmmp97@gmail.com"
             class="text-blue-600 hover:text-blue-800 hover:underline text-lg transition duration-300"
@@ -132,6 +104,9 @@
 
 <script setup>
 import LayoutPage from "../../layouts/layout-cust/LayoutPage.vue";
+import phone from "../../assets/phone.gif";
+import clock from "../../assets/clock.gif";
+import email from "../../assets/email.gif";
 </script>
 
 <style scoped>
