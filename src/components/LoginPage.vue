@@ -139,9 +139,6 @@
 import { ref } from "vue";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase.js";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
 
 export default {
   name: "LoginPage",
@@ -157,7 +154,7 @@ export default {
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
         // Login berhasil, user akan diarahkan ke dashboard
-        router.push('/home');
+        this.$router.push('/home');
       } catch (err) {
         console.error("Google login error:", err);
         if (err.code === "auth/popup-closed-by-user") {
