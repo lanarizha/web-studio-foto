@@ -30,7 +30,7 @@
         <!-- Navigation -->
         <nav class="flex flex-wrap items-center gap-4 text-sm sm:text-base">
           <router-link
-            to="/halamanutama"
+            to="/"
             class="nav-link"
             active-class="text-yellow-400 font-bold"
             exact
