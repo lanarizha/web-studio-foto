@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import './style.css'
 import App from './App.vue'
-import LoginPage from './components/LoginPage.vue'
+import LoginPage from './pages/LoginPage.vue'
 
 // ✅ Folder "halaman"
 import Home from './pages/hal-admin/Home.vue'
