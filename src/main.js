@@ -4,9 +4,6 @@ import './style.css'
 import App from './App.vue'
 import LoginPage from './components/LoginPage.vue'
 
-// ✅ Folder "layoutt"
-import DashboardPage from './components/DashboardPage.vue'
-
 // ✅ Folder "halaman"
 import Home from './pages/hal-admin/Home.vue'
 import DaftarBooking from './pages/hal-admin/DaftarBooking.vue'
@@ -30,14 +27,11 @@ import { onAuthStateChanged } from 'firebase/auth'
 
 // ✅ Rute dengan icon benar (tanpa tanda kutip di variabel)
 const routes = [
-  { path: '/', name: 'Login', component: LoginPage },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardPage,
-    props: true,
-    meta: { requiresAuth: true }
-  },
+  { path: '/', name: 'HalUtama', component: HalUtama},
+  { path: '/pricelist', name: 'Pricelist', component: PriceList },
+  { path: '/about', name: 'About', component: About },
+  { path: '/kontak', name: 'Kontak', component: Kontak },
+  { path: '/login', name: 'Login', component: LoginPage },
   {
     path: '/home',
     name: 'Home',
@@ -45,7 +39,8 @@ const routes = [
     meta: {
       title: 'Home',
       subtitle: 'Ringkasan Halaman Utama',
-      icon: homeIcon
+      icon: homeIcon,
+      requiresAuth: true
     }
   },
   {
@@ -55,7 +50,8 @@ const routes = [
     meta: {
       title: 'Daftar Booking Customer',
       subtitle: 'Lihat dan kelola jadwal yang telah dibooking oleh pelanggan',
-      icon: daftarIcon
+      icon: daftarIcon,
+      requiresAuth: true
     }
   },
   {
@@ -65,7 +61,8 @@ const routes = [
     meta: {
       title: 'Kalender Booking',
       subtitle: 'Tanggal dan waktu booking customer',
-      icon: kalenderIcon
+      icon: kalenderIcon,
+      requiresAuth: true
     }
   },
   {
@@ -75,7 +72,8 @@ const routes = [
     meta: {
       title: 'Paket Foto',
       subtitle: 'Jelajahi pilihan paket foto yang tersedia untuk pelanggan',
-      icon: fotoIcon
+      icon: fotoIcon,
+      requiresAuth: true
     }
   },
   {
@@ -85,13 +83,10 @@ const routes = [
     meta: {
       title: 'Rekap Booking Customer',
       subtitle: 'Data Booking Customer yang telah dibooking',
-      icon: rekapIcon
+      icon: rekapIcon,
+      requiresAuth: true
     }
   },
-  { path: '/halamanutama', name: 'HalUtama', component: HalUtama },
-  { path: '/pricelist', name: 'Pricelist', component: PriceList },
-  { path: '/about', name: 'About', component: About },
-  { path: '/kontak', name: 'Kontak', component: Kontak }
 ];
 
 const router = createRouter({
@@ -99,16 +94,41 @@ const router = createRouter({
   routes
 });
 
+// Route guard untuk melindungi halaman yang memerlukan autentikasi
 router.beforeEach((to, from, next) => {
+  // Cek apakah halaman yang diakses memerlukan autentikasi
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  if (requiresAuth) {
-    onAuthStateChanged(auth, (user) => {
-      if (user) next();
-      else next('/');
-    }, () => next('/'));
-  } else {
-    next();
-  }
+  
+  // Cek status autentikasi user
+  onAuthStateChanged(auth, (user) => {
+    // Jika halaman yang diakses memerlukan autentikasi
+    if (requiresAuth) {
+      // Jika user sudah login
+      if (user) {
+        if (to.path === '/login') {
+          // Jika urlnya /login, redirect ke halaman home
+          next('/home');
+        } else {
+          // Jika urlnya bukan /login, lanjutkan ke halaman yang diakses
+          next();
+        }
+      } else {
+        // Jika user belum login, redirect ke halaman login
+        next('/login');
+      }
+    } else { // Jika halaman yang diakses tidak memerlukan autentikasi
+      // Jika user sudah login dan urlnya /login, redirect ke halaman home
+      if(user && to.path === '/login') {
+        next('/home');
+      } else {
+        // Jika urlnya bukan /login, lanjutkan ke halaman yang diakses
+        next();
+      }
+    }
+  }, () => {
+    // Error dalam pengecekan auth, redirect ke login
+    next('/login');
+  });
 });
 
 const app = createApp(App);

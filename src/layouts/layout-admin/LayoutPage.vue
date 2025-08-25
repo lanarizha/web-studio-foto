@@ -50,6 +50,12 @@
               Rekap Booking
             </router-link>
           </li>
+          <li class="mt-14 hover:cursor-pointer">
+            <button @click="logout" class="w-full text-left hover:cursor-pointer">
+              <img src="../../assets/logout.gif" alt="Logout" class="inline w-5 h-5 mr-2" />
+              Logout
+            </button>
+          </li>
         </ul>
       </div>
     </aside>
@@ -133,6 +139,8 @@
 </template>
 
 <script>
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase";
 
 export default {
   name: "LayoutPage",
@@ -161,6 +169,14 @@ export default {
     },
     closeSidebar() {
       this.sidebarOpen = false;
+    },
+    async logout() {
+      try {
+        await signOut(auth);
+        this.$router.push("/");
+      } catch (error) {
+        console.error("Gagal saat logout:", error);
+      }
     }
   },
   mounted() {
