@@ -15,6 +15,7 @@ import PriceList from './pages/hal-cust/PriceList.vue'
 import About from './pages/hal-cust/About.vue'
 import Kontak from './pages/hal-cust/Kontak.vue'
 
+
 // ✅ Icon langsung di-import
 import homeIcon from './assets/family-life.gif'
 import daftarIcon from './assets/checklist.gif'
@@ -32,6 +33,7 @@ const routes = [
   { path: '/about', name: 'About', component: About },
   { path: '/kontak', name: 'Kontak', component: Kontak },
   { path: '/login', name: 'Login', component: LoginPage },
+
   {
     path: '/home',
     name: 'Home',
