@@ -5,15 +5,15 @@
       class="px-4 py-6 sticky top-0 z-40 bg-pink-100 bg-opacity-100 backdrop-blur-md shadow-md"
     >
       <div class="title-wrapper justify-center">
-  <h1 class="title-container typing-text">
-    Our Gallery
-    <img 
-      :src="iconSlide" 
-      alt="Camera Icon" 
-      class="inline-block w-12 h-10 object-contain ml-2 align-middle drop-shadow"
-    />
-  </h1>
-</div>
+        <h1 class="title-container typing-text">
+          Our Gallery
+          <img
+            :src="iconSlide"
+            alt="Camera Icon"
+            class="inline-block w-12 h-10 object-contain ml-2 align-middle drop-shadow"
+          />
+        </h1>
+      </div>
 
       <div class="flex flex-wrap gap-3 justify-center">
         <button
@@ -61,25 +61,71 @@
     <transition name="zoom">
       <div
         v-if="selectedPhoto"
-        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[9999]"
         @click.self="selectedPhoto = null"
       >
-        <div class="relative max-w-full max-h-screen rounded-xl shadow-2xl transition-all duration-500 ease-in-out">
-          <!-- Tombol panah kembali -->
+        <div class="relative w-screen h-screen flex items-center justify-center">
+          <!-- Tombol Close -->
           <button
             @click="selectedPhoto = null"
-            class="absolute top-3 left-3 bg-white bg-opacity-80 rounded-full p-2 hover:bg-opacity-100 transition"
+            class="absolute top-5 left-5 z-[10000] bg-white bg-opacity-80 rounded-full p-2 hover:bg-opacity-100 transition shadow-lg"
             aria-label="Close modal"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-pink-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+
+          <!-- Tombol Prev -->
+          <button
+            @click.stop="prevPhoto"
+            class="absolute left-5 top-1/2 -translate-y-1/2 z-[10000] bg-white bg-opacity-60 hover:bg-opacity-90 rounded-full p-3 shadow-lg"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-pink-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
 
+          <!-- Tombol Next -->
+          <button
+            @click.stop="nextPhoto"
+            class="absolute right-5 top-1/2 -translate-y-1/2 z-[10000] bg-white bg-opacity-60 hover:bg-opacity-90 rounded-full p-3 shadow-lg"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-pink-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          <!-- Gambar -->
           <img
             :src="selectedPhoto.src"
             :alt="selectedPhoto.alt"
-            class="max-w-full max-h-screen rounded-xl"
+            class="w-full h-full object-contain rounded-xl"
           />
         </div>
       </div>
@@ -184,6 +230,7 @@ const categories = [
 const activeCategory = ref("All Photos");
 const previousCategory = ref(activeCategory.value);
 
+// Photos
 const photos = [
   { src: img1, alt: "New Born 1", category: "New Born" },
   { src: img2, alt: "New Born 2", category: "New Born" },
@@ -216,6 +263,7 @@ const filteredPhotos = computed(() => {
   return photos.filter((photo) => photo.category === activeCategory.value);
 });
 
+// Modal
 const selectedPhoto = ref(null);
 
 async function openModal(photo) {
@@ -224,6 +272,35 @@ async function openModal(photo) {
   selectedPhoto.value = photo;
 }
 
+// Navigasi foto berdasarkan kategori aktif
+function nextPhoto() {
+  if (!selectedPhoto.value) return;
+  const index = filteredPhotos.value.findIndex((p) => p.src === selectedPhoto.value.src);
+  const nextIndex = (index + 1) % filteredPhotos.value.length;
+  selectedPhoto.value = filteredPhotos.value[nextIndex];
+}
+
+function prevPhoto() {
+  if (!selectedPhoto.value) return;
+  const index = filteredPhotos.value.findIndex((p) => p.src === selectedPhoto.value.src);
+  const prevIndex =
+    (index - 1 + filteredPhotos.value.length) % filteredPhotos.value.length;
+  selectedPhoto.value = filteredPhotos.value[prevIndex];
+}
+
+// Keyboard navigation
+function handleKeyDown(e) {
+  if (!selectedPhoto.value) return;
+  if (e.key === "ArrowRight") {
+    nextPhoto();
+  } else if (e.key === "ArrowLeft") {
+    prevPhoto();
+  } else if (e.key === "Escape") {
+    selectedPhoto.value = null;
+  }
+}
+
+// Category transition
 function changeCategory(cat) {
   previousCategory.value = activeCategory.value;
   activeCategory.value = cat;
@@ -242,9 +319,11 @@ function handleScroll() {
 }
 onMounted(() => {
   window.addEventListener("scroll", handleScroll);
+  window.addEventListener("keydown", handleKeyDown);
 });
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
+  window.removeEventListener("keydown", handleKeyDown);
 });
 function getParallaxStyle(index) {
   const offset = (scrollY.value * 0.05 * ((index % 3) - 1)).toFixed(2);
@@ -257,7 +336,6 @@ img {
   break-inside: avoid;
   border-radius: 0.5rem;
 }
-
 .fade-item {
   opacity: 0;
   transform: scale(0.95);
@@ -269,20 +347,17 @@ img {
     transform: scale(1);
   }
 }
-
 .catalog-item {
   opacity: 0;
   transform: translateY(20px);
   animation: fadeUp 0.6s ease forwards;
 }
-
 @keyframes fadeUp {
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
 .zoom-enter-active,
 .zoom-leave-active {
   transition: all 0.4s ease;
@@ -295,7 +370,6 @@ img {
   opacity: 0;
   transform: scale(0.85);
 }
-
 .slide-left-enter-active,
 .slide-left-leave-active,
 .slide-right-enter-active,
@@ -319,18 +393,15 @@ img {
   opacity: 0;
   transform: translateX(50px);
 }
-
 .gallery-item {
   will-change: transform;
 }
-
 .title-wrapper {
   padding-left: 1rem;
   margin-bottom: 1rem;
   display: flex;
   justify-content: center;
 }
-
 .title-container {
   font-family: "Courier New", Courier, monospace;
   font-size: 3.5rem;
@@ -340,7 +411,6 @@ img {
   user-select: none;
   margin: 0;
 }
-
 .typing-wrapper {
   width: fit-content;
   overflow: hidden;
@@ -353,9 +423,7 @@ img {
   color: #db2777;
   text-shadow: 2px 2px 4px rgba(219, 39, 119, 0.5), 0 0 10px rgba(219, 39, 119, 0.3);
   user-select: none;
-}
-
-/* typing effects */
+} /* typing effects */
 .typing-text {
   font-family: "Courier New", Courier, monospace;
   color: #db2777;
@@ -365,65 +433,65 @@ img {
   display: inline-block;
   animation: typing 3s steps(31) forwards, blink-caret 0.75s step-end 4; /* caret kedip 4x lalu hilang */
 }
-
 @keyframes typing {
-  from { width: 0; }
-  to { 
-    width: 17ch; 
+  from {
+    width: 0;
+  }
+  to {
+    width: 17ch;
     border-right: none; /* caret hilang */
   }
-}
-
-/* Mobile */
+} /* Mobile */
 @media (max-width: 640px) {
   .typing-text {
     font-size: 1.25rem; /* text-lg */
     animation: typing-sm 3s steps(20) forwards, blink-caret 0.75s step-end 4;
   }
-}
-
-/* Tablet */
+} /* Tablet */
 @media (min-width: 641px) and (max-width: 1024px) {
   .typing-text {
     font-size: 1.75rem; /* text-xl */
     animation: typing-md 3s steps(26) forwards, blink-caret 0.75s step-end 4;
   }
-}
-
-/* Desktop */
+} /* Desktop */
 @media (min-width: 1025px) {
   .typing-text {
     font-size: 2.5rem; /* text-4xl */
     animation: typing-lg 3s steps(31) forwards, blink-caret 0.75s step-end 4;
   }
 }
-
 @keyframes typing-sm {
-  from { width: 0; }
-  to { 
-    width: 19ch; 
+  from {
+    width: 0;
+  }
+  to {
+    width: 19ch;
     border-right: none;
   }
 }
 @keyframes typing-md {
-  from { width: 0; }
-  to { 
-    width: 26ch; 
+  from {
+    width: 0;
+  }
+  to {
+    width: 26ch;
     border-right: none;
   }
 }
 @keyframes typing-lg {
-  from { width: 0; }
-  to { 
-    width: 17ch; 
+  from {
+    width: 0;
+  }
+  to {
+    width: 17ch;
     border-right: none;
   }
 }
-
 @keyframes blink-caret {
-  50% { border-color: transparent; }
+  50% {
+    border-color: transparent;
+  }
 }
-
 button[aria-label="Close modal"] {
   cursor: pointer;
   box-shadow: 0 0 6px rgba(219, 39, 119, 0.5);
@@ -432,4 +500,3 @@ button[aria-label="Close modal"]:hover {
   box-shadow: 0 0 12px rgba(219, 39, 119, 0.8);
 }
 </style>
-
