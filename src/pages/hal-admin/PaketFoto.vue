@@ -2,6 +2,7 @@
 import LayoutPage from "../../layouts/layout-admin/LayoutPage.vue";
 import Button from "../../components/Button.vue";
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
+import api from "../../services/api";
 
 // Import gambar
 import prewedImage1 from "../../assets/prewed-1.jpg";
@@ -40,7 +41,7 @@ import iconX from "../../assets/x.gif";
 import iconEdit from "../../assets/edit.gif";
 import iconAdd from "../../assets/add.gif";
 
-// ✅ Daftar Icon yang Tersedia
+// Daftar Icon yang Tersedia
 const availableIcons = ref([
   { name: "Studio", src: iconStudio, label: "Studio Camera" },
   { name: "Family", src: iconFamily, label: "Big Family" },
@@ -51,87 +52,23 @@ const availableIcons = ref([
   { name: "Form", src: iconForm, label: "Browser Cursor" },
 ]);
 
-// ✅ Default Paket
-const defaultPaket = [
-  {
-    iconSrc: iconStudio,
-    nama: "Paket Studio",
-    deskripsi: "Pemotretan di studio dengan lighting profesional.",
-    fitur: ["30 Foto Digital", "Edit Warna", "Durasi 1 Jam"],
-    harga: 500000,
-    images: [studioImage1, studioImage2, studioImage3],
-  },
-  {
-    iconSrc: iconFamily,
-    nama: "Paket Keluarga",
-    deskripsi: "Pemotretan keluarga dengan tema bebas.",
-    fitur: ["50 Foto Digital", "Gratis Transport Lokal", "Durasi 2 Jam"],
-    harga: 800000,
-    images: [klgImage1, klgImage2, klgImage3],
-  },
-  {
-    iconSrc: iconPrewed,
-    nama: "Paket Prewedding",
-    deskripsi: "Paket khusus prewedding dengan properti dan lokasi khusus.",
-    fitur: ["100 Foto Digital", "Makeup & Kostum", "Durasi 4 Jam"],
-    harga: 2500000,
-    images: [prewedImage1, prewedImage2, prewedImage3],
-  },
-  {
-    iconSrc: iconBaby,
-    nama: "Paket New Born",
-    deskripsi: "Paket khusus new born untuk usia 0-12 bulan",
-    fitur: ["12 foto edit & bonus kolase", "Kostum dan properti bayi", "Durasi 60 menit"],
-    harga: 1500000,
-    images: [bayiImage1, bayiImage2, bayiImage3],
-  },
-  {
-    iconSrc: iconWide,
-    nama: "Paket Wide Angle",
-    deskripsi: "Foto wide angle menggunakan lensa sudut lebar.",
-    fitur: [
-      "2 photo print strip",
-      "All digital copies",
-      "Durasi 15 menit",
-      "max 6 orang",
-    ],
-    harga: 65000,
-    images: [wideImage1, wideImage2, wideImage3],
-  },
-  {
-    iconSrc: iconHigh,
-    nama: "Paket High Angle",
-    deskripsi: "Foto high angle diambil dari sudut di atas objek.",
-    fitur: ["8 photo print", "All digital copies", "Durasi 25 menit", "max 6 orang"],
-    harga: 250000,
-    images: [highImage1, highImage2, highImage3],
-  },
-];
-
-// ✅ State
+// State
 const paketList = ref([]);
 const currentSlideIndex = ref({});
 const intervals = {};
-const formBookingIcon = ref(iconForm);
-
-// Booking
-const showBookingModal = ref(false);
-const formBooking = ref({ nama: "", tanggal: "", jam: "", paket: "", catatan: "" });
-const formBookingError = ref("");
-const bookingList = ref([]);
-const kalenderTerpakai = ref([]);
 
 // Tambah Paket
 const showTambahPaketModal = ref(false);
 const newPaket = ref({
-  nama: "",
+  nama_paket: "",
   deskripsi: "",
   harga: 0,
   fitur: [],
+  // images and iconSrc are handled locally
   images: [],
-  iconSrc: iconForm, // Default icon
+  iconSrc: iconForm,
 });
-const editIndex = ref(null);
+const editPaketId = ref(null);
 const fiturInput = ref("");
 
 // Icon Selection States
@@ -141,6 +78,102 @@ const selectedIconSrc = ref(iconForm);
 // Custom icon upload
 const customIconFile = ref(null);
 
+
+// --- Local Image and Icon Mapping ---
+const localImages = {
+    "Paket Studio": [studioImage1, studioImage2, studioImage3],
+    "Paket Keluarga": [klgImage1, klgImage2, klgImage3],
+    "Paket Prewedding": [prewedImage1, prewedImage2, prewedImage3],
+    "Paket New Born": [bayiImage1, bayiImage2, bayiImage3],
+    "Paket Wide Angle": [wideImage1, wideImage2, wideImage3],
+    "Paket High Angle": [highImage1, highImage2, highImage3],
+};
+
+const localIcons = {
+    "Paket Studio": iconStudio,
+    "Paket Keluarga": iconFamily,
+    "Paket Prewedding": iconPrewed,
+    "Paket New Born": iconBaby,
+    "Paket Wide Angle": iconWide,
+    "Paket High Angle": iconHigh,
+};
+
+
+// --- API Calls ---
+async function fetchPaketList() {
+    try {
+        const response = await api.get('/paket-foto');
+        paketList.value = response.map(paket => ({
+            ...paket,
+            fitur: JSON.parse(paket.fitur || '[]'),
+            images: localImages[paket.nama_paket] || [],
+            iconSrc: localIcons[paket.nama_paket] || iconForm,
+        }));
+        setupSlideshow();
+    } catch (error) {
+        console.error("Error fetching paket list:", error);
+    }
+}
+
+// Tambah paket
+async function tambahPaket() {
+  if (!newPaket.value.nama_paket || !newPaket.value.deskripsi || !newPaket.value.harga) {
+    alert("Nama, deskripsi, dan harga wajib diisi 💕");
+    return;
+  }
+
+  const payload = {
+    ...newPaket.value,
+    fitur: JSON.stringify(newPaket.value.fitur),
+  };
+  
+  // Remove local-only properties before sending to backend
+  delete payload.images;
+  delete payload.iconSrc;
+
+  try {
+    if (editPaketId.value) {
+      await api.put(`/paket-foto/${editPaketId.value}`, payload);
+    } else {
+      await api.post('/paket-foto', payload);
+    }
+    fetchPaketList();
+    showTambahPaketModal.value = false;
+  } catch (error) {
+      console.error("Error saving paket:", error);
+      alert("Gagal menyimpan paket.");
+  }
+}
+
+// Edit & hapus paket/foto
+function editPaket(paket) {
+  editPaketId.value = paket.id;
+  newPaket.value = {
+    nama_paket: paket.nama_paket,
+    deskripsi: paket.deskripsi,
+    harga: paket.harga,
+    fitur: Array.isArray(paket.fitur) ? [...paket.fitur] : [],
+    images: paket.images,
+    iconSrc: paket.iconSrc,
+  };
+  selectedIconSrc.value = paket.iconSrc || iconForm;
+  showTambahPaketModal.value = true;
+}
+
+async function hapusPaket(id) {
+  if (confirm("Yakin ingin menghapus paket ini?")) {
+    try {
+        await api.delete(`/paket-foto/${id}`);
+        fetchPaketList();
+    } catch (error) {
+        console.error("Error deleting paket:", error);
+        alert("Gagal menghapus paket.");
+    }
+  }
+}
+
+
+// --- Local UI Functions ---
 // Upload gambar
 function handleImageUpload(e) {
   const files = e.target.files;
@@ -155,20 +188,12 @@ function handleImageUpload(e) {
 function handleIconUpload(e) {
   const file = e.target.files[0];
   if (file) {
-    // Validate file type
-    const validTypes = [
-      "image/gif",
-      "image/png",
-      "image/jpg",
-      "image/jpeg",
-      "image/webp",
-    ];
+    const validTypes = ["image/gif", "image/png", "image/jpg", "image/jpeg", "image/webp"];
     if (!validTypes.includes(file.type)) {
       alert("Hanya file gambar (GIF, PNG, JPG, JPEG, WEBP) yang diperbolehkan!");
       return;
     }
 
-    // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       alert("Ukuran file maksimal 2MB!");
       return;
@@ -180,7 +205,6 @@ function handleIconUpload(e) {
       selectedIconSrc.value = customIconSrc;
       newPaket.value.iconSrc = customIconSrc;
 
-      // Add to available icons list if it's a new custom icon
       const isExisting = availableIcons.value.some((icon) => icon.src === customIconSrc);
       if (!isExisting) {
         availableIcons.value.push({
@@ -189,8 +213,7 @@ function handleIconUpload(e) {
           label: `Custom Icon (${file.name})`,
         });
       }
-
-      customIconFile.value = null; // Reset file input
+      customIconFile.value = null;
     };
     reader.readAsDataURL(file);
   }
@@ -206,7 +229,7 @@ function selectIcon(iconSrc) {
 // Reset form
 function resetForm() {
   newPaket.value = {
-    nama: "",
+    nama_paket: "",
     deskripsi: "",
     harga: 0,
     fitur: [],
@@ -214,7 +237,7 @@ function resetForm() {
     iconSrc: iconForm,
   };
   selectedIconSrc.value = iconForm;
-  editIndex.value = null;
+  editPaketId.value = null;
   fiturInput.value = "";
   customIconFile.value = null;
 }
@@ -237,56 +260,9 @@ function hapusFitur(index) {
   newPaket.value.fitur.splice(index, 1);
 }
 
-// Tambah paket
-function tambahPaket() {
-  if (!newPaket.value.nama || !newPaket.value.deskripsi || !newPaket.value.harga) {
-    alert("Nama, deskripsi, dan harga wajib diisi 💕");
-    return;
-  }
-
-  if (!newPaket.value.iconSrc) {
-    newPaket.value.iconSrc = iconForm; // Default icon if none selected
-  }
-
-  const paketData = { ...newPaket.value };
-
-  if (editIndex.value !== null) {
-    paketList.value.splice(editIndex.value, 1, paketData);
-    editIndex.value = null;
-  } else {
-    paketList.value.push(paketData);
-  }
-
-  localStorage.setItem("paketList", JSON.stringify(paketList.value));
-  showTambahPaketModal.value = false;
-  resetForm();
-  nextTick(() => setupSlideshow());
-}
-
-// Edit & hapus paket/foto
-function editPaket(index) {
-  const paket = paketList.value[index];
-  newPaket.value = {
-    ...paket,
-    fitur: [...paket.fitur],
-    images: [...paket.images],
-  };
-  selectedIconSrc.value = paket.iconSrc || iconForm;
-  editIndex.value = index;
-  showTambahPaketModal.value = true;
-}
-
 function hapusFoto(index) {
   if (confirm("Yakin ingin menghapus foto ini?")) {
     newPaket.value.images.splice(index, 1);
-  }
-}
-
-function hapusPaket(index) {
-  if (confirm("Yakin ingin menghapus paket ini?")) {
-    paketList.value.splice(index, 1);
-    localStorage.setItem("paketList", JSON.stringify(paketList.value));
-    setupSlideshow();
   }
 }
 
@@ -310,67 +286,8 @@ onBeforeUnmount(() => Object.values(intervals).forEach(clearInterval));
 
 // Load data awal
 onMounted(() => {
-  const saved = localStorage.getItem("paketList");
-  paketList.value = saved ? JSON.parse(saved) : defaultPaket;
-  localStorage.setItem("paketList", JSON.stringify(paketList.value));
-  setupSlideshow();
-  const savedBooking = localStorage.getItem("bookingList");
-  if (savedBooking) bookingList.value = JSON.parse(savedBooking);
+  fetchPaketList();
 });
-
-// Auto save booking
-watch(
-  bookingList,
-  (value) => localStorage.setItem("bookingList", JSON.stringify(value)),
-  { deep: true }
-);
-
-// Booking functions
-function openBookingForm(paketNama) {
-  const paketDipilih = paketList.value.find((p) => p.nama === paketNama);
-  formBookingIcon.value = paketDipilih?.iconSrc || iconForm;
-
-  formBooking.value = {
-    nama: "",
-    tanggal: "",
-    jam: "",
-    paket: paketNama,
-    catatan: "",
-  };
-
-  formBookingError.value = "";
-  showBookingModal.value = true;
-
-  const kalenderList = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
-  kalenderTerpakai.value = kalenderList;
-}
-
-function submitBookingForm() {
-  const { nama, tanggal, jam, paket } = formBooking.value;
-  if (!nama || !tanggal || !jam || !paket) {
-    formBookingError.value = "Semua field wajib diisi ya sayang~💕";
-    return;
-  }
-
-  const kalenderKey = `${tanggal} ${jam}`;
-  if (kalenderTerpakai.value.includes(kalenderKey)) {
-    formBookingError.value = "Slot waktu ini sudah dibooking orang lain 🕒";
-    return;
-  }
-
-  const newBooking = {
-    id: Date.now(),
-    status: "Pending",
-    ...formBooking.value,
-  };
-
-  bookingList.value.push(newBooking);
-  kalenderTerpakai.value.push(kalenderKey);
-  localStorage.setItem("kalenderBookings", JSON.stringify(kalenderTerpakai.value));
-
-  showBookingModal.value = false;
-  alert("Booking berhasil disimpan!");
-}
 </script>
 
 <template>
@@ -378,14 +295,14 @@ function submitBookingForm() {
     <!-- Paket List -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-8">
       <div
-        v-for="(paket, index) in paketList"
-        :key="index"
+        v-for="(paket) in paketList"
+        :key="paket.id"
         class="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition bg-white flex flex-col"
       >
         <!-- Gambar -->
         <img
           v-if="paket.images && paket.images.length"
-          :src="paket.images[currentSlideIndex[index] || 0]"
+          :src="paket.images[currentSlideIndex[paket.id] || 0]"
           class="w-full aspect-[16/9] object-cover transition-all duration-700 ease-in-out"
         />
 
@@ -395,7 +312,7 @@ function submitBookingForm() {
             <h4
               class="text-lg sm:text-xl font-semibold text-gray-800 mb-1 flex items-center gap-2 flex-wrap"
             >
-              <span>{{ paket.nama }}</span>
+              <span>{{ paket.nama_paket }}</span>
               <img
                 :src="paket.iconSrc"
                 alt="icon"
@@ -415,19 +332,13 @@ function submitBookingForm() {
             </span>
             <div class="flex flex-wrap gap-2">
               <Button
-                @click="openBookingForm(paket.nama)"
-                text="Pesan"
-                text-color="#fff"
-                background-color="#16a34a"
-              />
-              <Button
-                @click="editPaket(index)"
+                @click="editPaket(paket)"
                 text="Edit"
                 text-color="#fff"
                 background-color="#facc15"
               />
               <Button
-                @click="hapusPaket(index)"
+                @click="hapusPaket(paket.id)"
                 text="Hapus"
                 text-color="#fff"
                 background-color="#ef4444"
@@ -446,21 +357,15 @@ function submitBookingForm() {
       <div class="bg-white p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-xl font-semibold flex items-center gap-2">
-            {{ editIndex !== null ? "Edit Paket" : "Tambah Paket" }}
+            {{ editPaketId ? "Edit Paket" : "Tambah Paket" }}
             <img
-              :src="editIndex !== null ? iconEdit : iconAdd"
+              :src="editPaketId ? iconEdit : iconAdd"
               alt="icon"
               class="w-7 object-contain"
             />
           </h2>
 
           <div class="flex items-center gap-2">
-            <!-- <span
-            v-if="editIndex !== null"
-            class="text-sm bg-yellow-200 text-yellow-800 px-2 py-1 rounded"
-          >
-            Editing
-          </span> -->
             <button
               @click="showTambahPaketModal = false"
               class="text-gray-500 hover:text-gray-700 text-xl font-bold"
@@ -538,7 +443,7 @@ function submitBookingForm() {
           <div>
             <label class="font-medium mb-1 block text-sm">Nama Paket</label>
             <input
-              v-model="newPaket.nama"
+              v-model="newPaket.nama_paket"
               placeholder="Contoh: Paket Wedding Premium"
               class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -601,27 +506,7 @@ function submitBookingForm() {
         <!-- Upload Gambar -->
         <div class="mb-6">
           <label class="font-medium mb-2 block text-sm">Gambar Paket</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            @change="handleImageUpload"
-            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
-          />
-          <div v-if="newPaket.images.length > 0">
-            <div class="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
-              <div v-for="(img, i) in newPaket.images" :key="i" class="relative group">
-                <img :src="img" class="w-full h-20 object-cover rounded border" />
-                <button
-                  @click="hapusFoto(i)"
-                  class="absolute -top-2 -right-2 text-white rounded-full w-6 h-6 text-xs font-bold hover: opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <img :src="iconX" alt="Tutup" class="w-5 h-6 object-contain" />
-                </button>
-              </div>
-            </div>
-          </div>
-          <p v-else class="text-sm text-gray-500 italic">Belum ada gambar ditambahkan</p>
+          <p class="text-sm text-gray-500 italic">Gambar dan icon di-handle secara lokal di frontend dan tidak disimpan di database.</p>
         </div>
 
         <!-- Tombol -->
@@ -636,94 +521,7 @@ function submitBookingForm() {
             @click="tambahPaket"
             class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
           >
-            {{ editIndex !== null ? "Simpan Perubahan" : "Simpan Paket" }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Booking Modal -->
-    <div
-      v-if="showBookingModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
-    >
-      <div
-        class="bg-white p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto relative"
-      >
-        <button
-          @click="showBookingModal = false"
-          class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
-        >
-          ×
-        </button>
-
-        <div class="flex items-center gap-3 mb-4">
-          <img :src="formBookingIcon" alt="icon" class="w-10 h-10 object-contain" />
-          <h2 class="text-xl font-semibold">Form Booking</h2>
-        </div>
-
-        <!-- Error -->
-        <p
-          v-if="formBookingError"
-          class="text-red-500 text-sm mb-3 bg-red-50 p-2 rounded"
-        >
-          {{ formBookingError }}
-        </p>
-
-        <!-- Form Input -->
-        <div class="space-y-3">
-          <input
-            v-model="formBooking.nama"
-            placeholder="Nama Lengkap"
-            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            v-model="formBooking.tanggal"
-            type="date"
-            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            v-model="formBooking.jam"
-            type="time"
-            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            v-model="formBooking.paket"
-            placeholder="Paket"
-            class="w-full border px-3 py-2 rounded bg-gray-100"
-            readonly
-          />
-          <textarea
-            v-model="formBooking.catatan"
-            placeholder="Catatan tambahan"
-            class="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows="3"
-          ></textarea>
-        </div>
-
-        <!-- Jadwal Terpakai -->
-        <div v-if="kalenderTerpakai.length" class="mt-4">
-          <h3 class="text-sm font-medium mb-2">Slot yang sudah terisi:</h3>
-          <ul
-            class="list-disc list-inside text-sm text-gray-500 max-h-24 overflow-y-auto bg-gray-50 p-2 rounded"
-          >
-            <li v-for="(slot, i) in kalenderTerpakai" :key="i">{{ slot }}</li>
-          </ul>
-        </div>
-
-        <!-- Tombol -->
-        <div class="flex justify-end gap-3 mt-6">
-          <button
-            @click="showBookingModal = false"
-            class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition"
-          >
-            Batal
-          </button>
-          <button
-            @click="submitBookingForm"
-            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-          >
-            Simpan Booking
+            {{ editPaketId ? "Simpan Perubahan" : "Simpan Paket" }}
           </button>
         </div>
       </div>
@@ -757,186 +555,5 @@ function submitBookingForm() {
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
-}
-
-/* Hover effects untuk icon selection */
-.icon-selector-item {
-  transition: all 0.2s ease;
-}
-
-.icon-selector-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Selected icon highlight */
-.icon-selected {
-  box-shadow: 0 0 0 2px #3b82f6;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 2px #3b82f6;
-  }
-  50% {
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
-  }
-}
-
-/* Form focus states */
-.form-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Modal animation */
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-/* Button hover effects */
-.btn-primary {
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Image preview hover effects */
-.image-preview {
-  transition: transform 0.2s ease;
-}
-
-.image-preview:hover {
-  transform: scale(1.05);
-}
-
-/* Loading state untuk upload */
-.upload-loading::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsive improvements */
-@media (max-width: 640px) {
-  .modal-container {
-    margin: 1rem;
-    max-height: calc(100vh - 2rem);
-  }
-
-  .icon-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-  }
-
-  .btn-group {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
-
-/* Tooltip styles */
-.tooltip {
-  position: relative;
-}
-
-.tooltip::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 1000;
-}
-
-.tooltip:hover::before {
-  opacity: 1;
-}
-
-/* Error message styling */
-.error-message {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  border-left: 4px solid #ef4444;
-}
-
-/* Success message styling */
-.success-message {
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-  border-left: 4px solid #22c55e;
-}
-
-/* Form field focus ring */
-.form-field:focus-within {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-  border-radius: 0.375rem;
-}
-
-/* Custom file input styling */
-.file-input {
-  position: relative;
-  overflow: hidden;
-  display: inline-block;
-}
-
-.file-input input[type="file"] {
-  position: absolute;
-  left: -9999px;
-}
-
-.file-input-label {
-  cursor: pointer;
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  background: #f3f4f6;
-  border: 2px dashed #d1d5db;
-  border-radius: 0.375rem;
-  transition: all 0.2s ease;
-}
-
-.file-input-label:hover {
-  background: #e5e7eb;
-  border-color: #9ca3af;
-}
-
-.file-input-label.dragover {
-  background: #dbeafe;
-  border-color: #3b82f6;
 }
 </style>

@@ -139,9 +139,6 @@
 </template>
 
 <script>
-import { signOut } from "firebase/auth";
-import { auth } from "../../firebase";
-
 export default {
   name: "LayoutPage",
   data() {
@@ -170,13 +167,9 @@ export default {
     closeSidebar() {
       this.sidebarOpen = false;
     },
-    async logout() {
-      try {
-        await signOut(auth);
-        this.$router.push("/");
-      } catch (error) {
-        console.error("Gagal saat logout:", error);
-      }
+    logout() {
+      localStorage.removeItem('token');
+      this.$router.push('/login');
     }
   },
   mounted() {

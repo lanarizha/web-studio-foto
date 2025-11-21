@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import './style.css'
+// Import Font Awesome
+// import '@fortawesome/fontawesome-free/css/all.min.css'
 import App from './App.vue'
 import LoginPage from './pages/LoginPage.vue'
 
@@ -14,7 +16,7 @@ import HalUtama from './pages/hal-cust/HalUtama.vue'
 import PriceList from './pages/hal-cust/PriceList.vue'
 import About from './pages/hal-cust/About.vue'
 import Kontak from './pages/hal-cust/Kontak.vue'
-
+import RegisterPage from './pages/RegisterPage.vue';
 
 // ✅ Icon langsung di-import
 import homeIcon from './assets/family-life.gif'
@@ -23,9 +25,6 @@ import kalenderIcon from './assets/friendship-day.gif'
 import fotoIcon from './assets/photo-gallery.gif'
 import rekapIcon from './assets/files.gif'
 
-import { auth } from './firebase.js'
-import { onAuthStateChanged } from 'firebase/auth'
-
 // ✅ Rute dengan icon benar (tanpa tanda kutip di variabel)
 const routes = [
   { path: '/', name: 'HalUtama', component: HalUtama},
@@ -33,7 +32,7 @@ const routes = [
   { path: '/about', name: 'About', component: About },
   { path: '/kontak', name: 'Kontak', component: Kontak },
   { path: '/login', name: 'Login', component: LoginPage },
-
+  { path: '/register', name: 'Register', component: RegisterPage },
   {
     path: '/home',
     name: 'Home',
@@ -98,39 +97,19 @@ const router = createRouter({
 
 // Route guard untuk melindungi halaman yang memerlukan autentikasi
 router.beforeEach((to, from, next) => {
-  // Cek apakah halaman yang diakses memerlukan autentikasi
+  const loggedIn = localStorage.getItem('token');
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  
-  // Cek status autentikasi user
-  onAuthStateChanged(auth, (user) => {
-    // Jika halaman yang diakses memerlukan autentikasi
-    if (requiresAuth) {
-      // Jika user sudah login
-      if (user) {
-        if (to.path === '/login') {
-          // Jika urlnya /login, redirect ke halaman home
-          next('/home');
-        } else {
-          // Jika urlnya bukan /login, lanjutkan ke halaman yang diakses
-          next();
-        }
-      } else {
-        // Jika user belum login, redirect ke halaman login
-        next('/login');
-      }
-    } else { // Jika halaman yang diakses tidak memerlukan autentikasi
-      // Jika user sudah login dan urlnya /login, redirect ke halaman home
-      if(user && to.path === '/login') {
-        next('/home');
-      } else {
-        // Jika urlnya bukan /login, lanjutkan ke halaman yang diakses
-        next();
-      }
-    }
-  }, () => {
-    // Error dalam pengecekan auth, redirect ke login
+
+  if (requiresAuth && !loggedIn) {
+    // Jika rute memerlukan auth dan tidak ada token, redirect ke login
     next('/login');
-  });
+  } else if ((to.path === '/login' || to.path === '/register') && loggedIn) {
+    // Jika user sudah login dan mencoba mengakses halaman login/register, redirect ke home
+    next('/home');
+  } else {
+    // Lanjutkan navigasi
+    next();
+  }
 });
 
 const app = createApp(App);

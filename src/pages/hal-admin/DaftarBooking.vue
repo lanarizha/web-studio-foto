@@ -49,14 +49,14 @@
           </thead>
           <tbody>
             <tr
-              v-for="(booking, index) in paginatedBookings"
-              :key="index"
+              v-for="(booking) in paginatedBookings"
+              :key="booking.id"
               class="border-t hover:bg-gray-50 transition"
             >
-              <td class="px-6 py-4">{{ booking.nama }}</td>
-              <td class="px-6 py-4">{{ booking.tanggal }}</td>
-              <td class="px-6 py-4">{{ booking.jam }}</td>
-              <td class="px-6 py-4">{{ booking.paket }}</td>
+              <td class="px-6 py-4">{{ booking.nama_customer }}</td>
+              <td class="px-6 py-4">{{ booking.tanggal_booking }}</td>
+              <td class="px-6 py-4">{{ booking.jam_sesi }}</td>
+              <td class="px-6 py-4">{{ booking.jenis_paket }}</td>
               <td class="px-6 py-4">
                 <button
                   @click="toggleStatus(booking)"
@@ -74,13 +74,13 @@
               <td class="px-6 py-4 text-center space-x-2">
                 <button
                   class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs"
-                  @click="editBooking(booking, index)"
+                  @click="editBooking(booking)"
                 >
                   Edit
                 </button>
                 <button
                   class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full text-xs"
-                  @click="deleteBooking(index)"
+                  @click="deleteBooking(booking.id)"
                 >
                   Hapus
                 </button>
@@ -127,35 +127,25 @@
 
         <div class="space-y-3">
           <input
-            v-model="newBooking.nama"
+            v-model="newBooking.nama_customer"
             placeholder="Nama"
             class="w-full border px-3 py-2 rounded"
           />
           <input
-            v-model="newBooking.tanggal"
+            v-model="newBooking.tanggal_booking"
             type="date"
             class="w-full border px-3 py-2 rounded"
           />
-          <select v-model="newBooking.jam" class="w-full border px-3 py-2 rounded">
+          <select v-model="newBooking.jam_sesi" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Jam</option>
             <option
               v-for="jam in jamList"
               :key="jam"
-              :disabled="
-                kalenderTerpakai.includes(`${newBooking.tanggal} ${jam}`) &&
-                jam !== newBooking.jam
-              "
-              :class="
-                kalenderTerpakai.includes(`${newBooking.tanggal} ${jam}`) &&
-                jam !== newBooking.jam
-                  ? 'text-gray-400 line-through'
-                  : ''
-              "
             >
               {{ jam }}
             </option>
           </select>
-          <select v-model="newBooking.paket" class="w-full border px-3 py-2 rounded">
+          <select v-model="newBooking.jenis_paket" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Paket</option>
             <option v-for="paket in paketList" :key="paket" :value="paket">
               {{ paket }}
@@ -200,35 +190,25 @@
 
         <div class="space-y-3">
           <input
-            v-model="editForm.nama"
+            v-model="editForm.nama_customer"
             placeholder="Nama"
             class="w-full border px-3 py-2 rounded"
           />
           <input
-            v-model="editForm.tanggal"
+            v-model="editForm.tanggal_booking"
             type="date"
             class="w-full border px-3 py-2 rounded"
           />
-          <select v-model="editForm.jam" class="w-full border px-3 py-2 rounded">
+          <select v-model="editForm.jam_sesi" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Jam</option>
             <option
               v-for="jam in jamList"
               :key="jam"
-              :disabled="
-                kalenderTerpakai.includes(`${editForm.tanggal} ${jam}`) &&
-                jam !== editForm.jam
-              "
-              :class="
-                kalenderTerpakai.includes(`${editForm.tanggal} ${jam}`) &&
-                jam !== editForm.jam
-                  ? 'text-gray-400 line-through'
-                  : ''
-              "
             >
               {{ jam }}
             </option>
           </select>
-          <select v-model="editForm.paket" class="w-full border px-3 py-2 rounded">
+          <select v-model="editForm.jenis_paket" class="w-full border px-3 py-2 rounded">
             <option disabled value="">Pilih Paket</option>
             <option v-for="paket in paketList" :key="paket" :value="paket">
               {{ paket }}
@@ -267,6 +247,7 @@
 
 <script>
 import LayoutPage from "../../layouts/layout-admin/LayoutPage.vue";
+import api from "../../services/api";
 
 export default {
   name: "BookingTable",
@@ -280,9 +261,8 @@ export default {
       endIndex: 0,
       showAddModal: false,
       showEditModal: false,
-      editIndex: null,
+      editBookingId: null,
       bookings: [],
-      kalenderTerpakai: [],
       formError: "",
       jamList: [
         "08:00",
@@ -305,18 +285,19 @@ export default {
         "Paket High Angle📷",
       ],
       editForm: {
-        nama: "",
-        tanggal: "",
-        jam: "",
-        paket: "",
+        nama_customer: "",
+        tanggal_booking: "",
+        jam_sesi: "",
+        jenis_paket: "",
         status: "",
         catatan: "",
       },
       newBooking: {
-        nama: "",
-        tanggal: "",
-        jam: "",
-        paket: "",
+        user_id: 1, // Hardcoded user_id
+        nama_customer: "",
+        tanggal_booking: "",
+        jam_sesi: "",
+        jenis_paket: "",
         status: "",
         catatan: "",
       },
@@ -325,7 +306,7 @@ export default {
   computed: {
     filteredBookings() {
       return this.bookings.filter((b) => {
-        const namaMatch = b.nama.toLowerCase().includes(this.searchTerm.toLowerCase());
+        const namaMatch = b.nama_customer.toLowerCase().includes(this.searchTerm.toLowerCase());
         const statusMatch = this.selectedStatus ? b.status === this.selectedStatus : true;
         return namaMatch && statusMatch;
       });
@@ -337,119 +318,99 @@ export default {
     },
   },
   methods: {
+    async fetchBookings() {
+        try {
+            const response = await api.get('/daftar-booking');
+            this.bookings = response;
+        } catch (error) {
+            console.error("Error fetching bookings:", error);
+        }
+    },
     nextPage() {
       if (this.endIndex < this.filteredBookings.length) this.currentPage++;
     },
     prevPage() {
       if (this.currentPage > 1) this.currentPage--;
     },
-    toggleStatus(booking) {
-      booking.status = booking.status === "Pending" ? "Confirmed" : "Pending";
-      this.saveToLocalStorage();
+    async toggleStatus(booking) {
+      const newStatus = booking.status === "Pending" ? "Confirmed" : "Pending";
+      try {
+        await api.put(`/daftar-booking/${booking.id}`, { status: newStatus });
+        booking.status = newStatus;
+      } catch (error) {
+          console.error("Error toggling status:", error);
+      }
     },
-    editBooking(booking, index) {
-      this.editIndex = index;
+    editBooking(booking) {
+      this.editBookingId = booking.id;
       this.editForm = { ...booking };
-      this.refreshKalenderTerpakai(booking.tanggal);
       this.showEditModal = true;
     },
-    saveEdit() {
-      const key = `${this.editForm.tanggal} ${this.editForm.jam}`;
-      const allKalender = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
-      const oldKey = `${this.bookings[this.editIndex].tanggal} ${
-        this.bookings[this.editIndex].jam
-      }`;
-
-      if (key !== oldKey && allKalender.includes(key)) {
-        alert("Slot waktu ini sudah dipakai orang lain.");
-        return;
+    async saveEdit() {
+      try {
+        await api.put(`/daftar-booking/${this.editBookingId}`, this.editForm);
+        this.fetchBookings();
+        this.cancelEdit();
+      } catch (error) {
+        console.error("Error saving edit:", error);
       }
-
-      if (key !== oldKey) {
-        const idx = allKalender.indexOf(oldKey);
-        if (idx !== -1) allKalender.splice(idx, 1);
-        allKalender.push(key);
-        localStorage.setItem("kalenderBookings", JSON.stringify(allKalender));
-      }
-
-      this.bookings.splice(this.editIndex, 1, { ...this.editForm });
-      this.saveToLocalStorage();
-      this.showEditModal = false;
-      this.editIndex = null;
     },
-    deleteBooking(index) {
-      const booking = this.bookings[index];
-      const key = `${booking.tanggal} ${booking.jam}`;
-      const allKalender = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
-      const idx = allKalender.indexOf(key);
-      if (idx !== -1) allKalender.splice(idx, 1);
-      localStorage.setItem("kalenderBookings", JSON.stringify(allKalender));
-
-      this.bookings.splice(index, 1);
-      this.saveToLocalStorage();
+    async deleteBooking(id) {
+        if (confirm("Are you sure you want to delete this booking?")) {
+            try {
+                await api.delete(`/daftar-booking/${id}`);
+                this.fetchBookings();
+            } catch (error) {
+                console.error("Error deleting booking:", error);
+            }
+        }
     },
-    submitBooking() {
-      const { nama, tanggal, jam, paket, status } = this.newBooking;
-      const key = `${tanggal} ${jam}`;
-      const allKalender = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
-
-      if (!nama || !tanggal || !jam || !paket || !status) {
+    async submitBooking() {
+      this.formError = "";
+      if (!this.newBooking.nama_customer || !this.newBooking.tanggal_booking || !this.newBooking.jam_sesi || !this.newBooking.jenis_paket || !this.newBooking.status) {
         this.formError = "Semua field wajib diisi.";
         return;
       }
-
-      if (allKalender.includes(key)) {
-        this.formError = "Slot waktu ini sudah diambil orang lain.";
-        return;
+      try {
+          await api.post('/daftar-booking', this.newBooking);
+          this.fetchBookings();
+          this.cancelAdd();
+      } catch (error) {
+          console.error("Error submitting booking:", error);
+          this.formError = "Gagal menyimpan booking.";
       }
-
-      allKalender.push(key);
-      localStorage.setItem("kalenderBookings", JSON.stringify(allKalender));
-
-      this.bookings.push({ ...this.newBooking });
-      this.saveToLocalStorage();
-      this.resetNewBooking();
     },
     cancelAdd() {
       this.resetNewBooking();
       this.showAddModal = false;
     },
+    cancelEdit() {
+        this.editBookingId = null;
+        this.editForm = {
+            nama_customer: "",
+            tanggal_booking: "",
+            jam_sesi: "",
+            jenis_paket: "",
+            status: "",
+            catatan: "",
+        };
+        this.showEditModal = false;
+    },
     resetNewBooking() {
       this.formError = "";
       this.newBooking = {
-        nama: "",
-        tanggal: "",
-        jam: "",
-        paket: "",
+        user_id: 1, // Hardcoded user_id
+        nama_customer: "",
+        tanggal_booking: "",
+        jam_sesi: "",
+        jenis_paket: "",
         status: "",
         catatan: "",
       };
     },
-    refreshKalenderTerpakai(tanggal) {
-      const allKalender = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
-      this.kalenderTerpakai = allKalender.filter((item) => item.startsWith(tanggal));
-    },
-    saveToLocalStorage() {
-      localStorage.setItem("bookingList", JSON.stringify(this.bookings));
-    },
-    loadFromLocalStorage() {
-      const data = localStorage.getItem("bookingList");
-      if (data) {
-        this.bookings = JSON.parse(data);
-      }
-    },
   },
-  watch: {
-    "newBooking.tanggal"(val) {
-      if (val) this.refreshKalenderTerpakai(val);
-    },
-    "editForm.tanggal"(val) {
-      if (val) this.refreshKalenderTerpakai(val);
-    },
-  },
-
   mounted() {
-    this.loadFromLocalStorage();
+    this.fetchBookings();
   },
 };
 </script>

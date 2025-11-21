@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onMounted, watch, onBeforeUnmount } from "vue";
 import LayoutPage from "../../layouts/layout-cust/LayoutPage.vue"; 
-import Button from "../../components/Button.vue"; // pastikan path sesuai
+import Button from "../../components/Button.vue";
+import api from "../../services/api";
 
 // Import icon gif
 import iconStudio from "../../assets/studiocam.gif";
@@ -38,57 +39,25 @@ import highImage1 from "../../assets/high-1.jpg";
 import highImage2 from "../../assets/high-2.jpg";
 import highImage3 from "../../assets/high-3.jpg";
 
-// Default Paket List (sebagai fallback jika tidak ada data di localStorage)
-const defaultPaketList = [
-  {
-    nama: "Prewedding",
-    deskripsi: "Sesi foto prewedding romantis indoor/outdoor.",
-    fitur: ["Durasi 4 jam", "30 foto edit", "Semua file dikirim"],
-    harga: 1500000,
-    iconSrc: iconPrewed,
-    images: [prewedImage1, prewedImage2, prewedImage3],
-  },
-  {
-    nama: "Baby / Newborn",
-    deskripsi: "Momen pertama si kecil yang menggemaskan.",
-    fitur: ["Durasi 2 jam", "15 foto edit", "Semua file dikirim"],
-    harga: 600000,
-    iconSrc: iconBaby,
-    images: [bayiImage1, bayiImage2, bayiImage3],
-  },
-  {
-    nama: "Family",
-    deskripsi: "Abadikan momen bahagia bersama keluarga.",
-    fitur: ["Durasi 3 jam", "20 foto edit", "Album cetak"],
-    harga: 750000,
-    iconSrc: iconFamily,
-    images: [klgImage1, klgImage2, klgImage3],
-  },
-  {
-    nama: "Studio",
-    deskripsi: "Pemotretan profesional di dalam studio.",
-    fitur: ["Durasi 2 jam", "15 foto edit", "Semua file dikirim"],
-    harga: 500000,
-    iconSrc: iconStudio,
-    images: [studioImage1, studioImage2, studioImage3],
-  },
-  {
-    nama: "Wide Outdoor",
-    deskripsi: "Outdoor dengan pemandangan luas & natural.",
-    fitur: ["Durasi 3 jam", "25 foto edit", "Semua file dikirim"],
-    harga: 1200000,
-    iconSrc: iconWide,
-    images: [wideImage1, wideImage2, wideImage3],
-  },
-  {
-    nama: "High Angle",
-    deskripsi: "Drone & high cam untuk perspektif unik.",
-    fitur: ["Durasi 2 jam", "15 foto edit", "Video pendek"],
-    harga: 2000000,
-    iconSrc: iconHigh,
-    images: [highImage1, highImage2, highImage3],
-  },
-];
+
+// --- Local Image and Icon Mapping ---
+const localImages = {
+    "Paket Studio": [studioImage1, studioImage2, studioImage3],
+    "Paket Keluarga": [klgImage1, klgImage2, klgImage3],
+    "Paket Prewedding": [prewedImage1, prewedImage2, prewedImage3],
+    "Paket New Born": [bayiImage1, bayiImage2, bayiImage3],
+    "Paket Wide Angle": [wideImage1, wideImage2, wideImage3],
+    "Paket High Angle": [highImage1, highImage2, highImage3],
+};
+
+const localIcons = {
+    "Paket Studio": iconStudio,
+    "Paket Keluarga": iconFamily,
+    "Paket Prewedding": iconPrewed,
+    "Paket New Born": iconBaby,
+    "Paket Wide Angle": iconWide,
+    "Paket High Angle": iconHigh,
+};
 
 // Paket List reactive
 const paketList = ref([]);
@@ -99,13 +68,8 @@ const intervals = {};
 
 // Function to initialize slideshow for all packages
 function initializeSlideshow() {
-  // Clear existing intervals
   Object.values(intervals).forEach(clearInterval);
-  
-  // Reset current slide index
   currentSlideIndex.value = {};
-  
-  // Initialize slideshow for each package
   paketList.value.forEach((paket, i) => {
     currentSlideIndex.value[i] = 0;
     if (paket.images && paket.images.length > 1) {
@@ -117,115 +81,75 @@ function initializeSlideshow() {
   });
 }
 
-// Function to load packages from localStorage or use defaults
-function loadPaketList() {
+// Function to load packages from the backend
+async function loadPaketList() {
   try {
-    const savedPakets = localStorage.getItem("paketList");
-    if (savedPakets) {
-      const parsedPakets = JSON.parse(savedPakets);
-      // Validate that the parsed data is an array and not empty
-      if (Array.isArray(parsedPakets) && parsedPakets.length > 0) {
-        // Process images for each package
-        paketList.value = parsedPakets.map(paket => {
-          // Ensure images is an array
-          if (!paket.images || !Array.isArray(paket.images)) {
-            paket.images = [];
-          }
-          
-          // If no images available, add a placeholder or default image
-          if (paket.images.length === 0) {
-            // You can add a default image here or leave empty
-            paket.images = [];
-          }
-          
-          return paket;
-        });
-      } else {
-        // If no valid data in localStorage, use defaults
-        paketList.value = [...defaultPaketList];
-        localStorage.setItem("paketList", JSON.stringify(defaultPaketList));
-      }
-    } else {
-      // If no data in localStorage, use defaults and save them
-      paketList.value = [...defaultPaketList];
-      localStorage.setItem("paketList", JSON.stringify(defaultPaketList));
-    }
+    const response = await api.get('/paket-foto');
+    paketList.value = response.map(paket => ({
+        ...paket,
+        fitur: JSON.parse(paket.fitur || '[]'),
+        images: localImages[paket.nama_paket] || [],
+        iconSrc: localIcons[paket.nama_paket] || iconForm,
+    }));
+    initializeSlideshow();
   } catch (error) {
     console.error("Error loading paket list:", error);
-    // Fallback to default packages
-    paketList.value = [...defaultPaketList];
-    localStorage.setItem("paketList", JSON.stringify(defaultPaketList));
   }
-}
-
-// Function to refresh data from localStorage (can be called periodically)
-function refreshPaketData() {
-  loadPaketList();
-  initializeSlideshow();
 }
 
 // Booking
 const showBookingModal = ref(false);
-const formBooking = ref({ nama: "", tanggal: "", jam: "", paket: "", catatan: "" });
+const formBooking = ref({ nama_customer: "", tanggal_booking: "", jam_sesi: "",jenis_paket:"", catatan: "" });
 const formBookingError = ref("");
-const bookingList = ref([]);
-const kalenderTerpakai = ref([]);
 
 function openBookingForm(paketNama) {
-  formBooking.value = { nama: "", tanggal: "", jam: "", paket: paketNama, catatan: "" };
+  formBooking.value = { nama_customer: "", tanggal_booking: "", jam_sesi: "", jenis_paket: paketNama, catatan: "" };
   formBookingError.value = "";
   showBookingModal.value = true;
-  kalenderTerpakai.value = JSON.parse(localStorage.getItem("kalenderBookings") || "[]");
 }
 
-function submitBookingForm() {
-  const { nama, tanggal, jam, paket } = formBooking.value;
-  if (!nama || !tanggal || !jam || !paket) {
+async function submitBookingForm() {
+  const { nama_customer, tanggal_booking, jam_sesi, jenis_paket } = formBooking.value;
+  if (!nama_customer || !tanggal_booking || !jam_sesi || !jenis_paket) {
     formBookingError.value = "Semua field wajib diisi ya sayang~💕";
     return;
   }
-  const kalenderKey = `${tanggal} ${jam}`;
-  if (kalenderTerpakai.value.includes(kalenderKey)) {
-    formBookingError.value = "Slot waktu ini sudah dibooking orang lain 🕒";
-    return;
+
+  const payload = {
+    ...formBooking.value,
+    user_id: 1, // Hardcoded user_id
+    status: 'Pending'
+  };
+
+  try {
+    await api.post('/daftar-booking', payload);
+    showBookingModal.value = false;
+    alert("Booking berhasil disimpan! Silakan tunggu konfirmasi dari admin.");
+  } catch (error) {
+    console.error("Error submitting booking:", error);
+    formBookingError.value = error.message || "Gagal menyimpan booking.";
   }
-  bookingList.value.push({ id: Date.now(), status: "Pending", ...formBooking.value });
-  kalenderTerpakai.value.push(kalenderKey);
-  localStorage.setItem("kalenderBookings", JSON.stringify(kalenderTerpakai.value));
-  showBookingModal.value = false;
-  alert("Booking berhasil disimpan!");
 }
 
 // Helper function to get image URL (handles both blob URLs and regular URLs)
 function getImageUrl(imageSrc) {
   if (!imageSrc) return '';
   
-  // If it's a blob URL or data URL, return as is
   if (imageSrc.startsWith('blob:') || imageSrc.startsWith('data:')) {
     return imageSrc;
   }
   
-  // If it's a regular URL or imported asset, return as is
   return imageSrc;
 }
 
 // Load data on mount
 onMounted(() => {
   loadPaketList();
-  initializeSlideshow();
   
-  // Load booking data
-  const savedBooking = localStorage.getItem("bookingList");
-  if (savedBooking) {
-    bookingList.value = JSON.parse(savedBooking);
-  }
-  
-  // Set up interval to check for updates from admin (optional)
   const refreshInterval = setInterval(() => {
-    refreshPaketData();
-  }, 5000); // Check every 5 seconds
+    loadPaketList();
+  }, 5000); 
   
-  // Store interval ID to clear it later
   onBeforeUnmount(() => {
     clearInterval(refreshInterval);
   });
@@ -240,13 +164,6 @@ watch(paketList, () => {
 onBeforeUnmount(() => {
   Object.values(intervals).forEach(clearInterval);
 });
-
-// Watch booking list changes
-watch(
-  bookingList,
-  (value) => localStorage.setItem("bookingList", JSON.stringify(value)),
-  { deep: true }
-);
 </script>
 
 <template>
@@ -267,16 +184,6 @@ watch(
 
     <!-- Paket List -->
     <div class="full-bg-container rounded-xl shadow p-6">
-      <!-- Refresh Button (Optional - for manual refresh) -->
-      <!-- <div class="mb-4 text-center">
-        <button 
-          @click="refreshPaketData"
-          class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-        >
-          🔄 Refresh Paket
-        </button>
-      </div> -->
-
       <!-- No packages message -->
       <div v-if="paketList.length === 0" class="text-center py-8">
         <p class="text-gray-600 text-lg">Tidak ada paket tersedia saat ini.</p>
@@ -286,7 +193,7 @@ watch(
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
           v-for="(paket, index) in paketList"
-          :key="`paket-${index}-${paket.nama}`"
+          :key="paket.id"
           class="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-transform duration-300 bg-white flex flex-col"
         >
           <!-- Image slideshow -->
@@ -296,16 +203,11 @@ watch(
                 <img
                   :key="`img-${paket.images[currentSlideIndex[index]]}-${currentSlideIndex[index]}`"
                   :src="getImageUrl(paket.images[currentSlideIndex[index]])"
-                  :alt="`${paket.nama} - Image ${currentSlideIndex[index] + 1}`"
+                  :alt="`${paket.nama_paket} - Image ${currentSlideIndex[index] + 1}`"
                   class="w-full h-full object-cover"
                   @error="$event.target.style.display = 'none'"
                 />
               </transition>
-              
-              <!-- Image counter -->
-              <!-- <div v-if="paket.images.length > 1" class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-                {{ (currentSlideIndex[index] || 0) + 1 }}/{{ paket.images.length }}
-              </div> -->
             </div>
             
             <!-- Placeholder when no images -->
@@ -321,7 +223,7 @@ watch(
           <div class="p-4 flex-1 flex flex-col justify-between">
             <div>
               <h4 class="text-xl font-semibold text-gray-800 mb-1 flex items-center gap-2">
-                <span>{{ paket.nama }}</span>
+                <span>{{ paket.nama_paket }}</span>
                 <img 
                   v-if="paket.iconSrc" 
                   :src="paket.iconSrc" 
@@ -339,7 +241,7 @@ watch(
                 Rp {{ (paket.harga || 0).toLocaleString() }}
               </span>
               <Button
-                @click="openBookingForm(paket.nama)"
+                @click="openBookingForm(paket.nama_paket)"
                 text="Pesan"
                 text-color="#3b3eff"
                 background-color="#e6908a"
@@ -373,19 +275,19 @@ watch(
             <div class="p-6 space-y-4">
               <div class="flex items-center gap-3">
                 <img
-                  :src="paketList.find((p) => p.nama === formBooking.paket)?.iconSrc"
+                  :src="paketList.find((p) => p.nama_paket === formBooking.jenis_paket)?.iconSrc"
                   alt="icon paket"
                   class="w-8 h-8 object-contain"
                 />
                 <h4 class="text-lg font-semibold text-gray-800">
-                  {{ formBooking.paket }}
+                  {{ formBooking.jenis_paket }}
                 </h4>
               </div>
               <!-- Input -->
               <div>
                 <label class="block text-sm font-medium text-gray-600 mb-1">Nama Lengkap</label>
                 <input
-                  v-model="formBooking.nama"
+                  v-model="formBooking.nama_customer"
                   type="text"
                   placeholder="Masukkan nama lengkap"
                   class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
@@ -394,7 +296,7 @@ watch(
               <div>
                 <label class="block text-sm font-medium text-gray-600 mb-1">Tanggal Booking</label>
                 <input
-                  v-model="formBooking.tanggal"
+                  v-model="formBooking.tanggal_booking"
                   type="date"
                   class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
                 />
@@ -402,7 +304,7 @@ watch(
               <div>
                 <label class="block text-sm font-medium text-gray-600 mb-1">Pilih Jam</label>
                 <select
-                  v-model="formBooking.jam"
+                  v-model="formBooking.jam_sesi"
                   class="w-full border border-gray-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
                 >
                   <option disabled value="">Pilih Jam Disini</option>
@@ -420,12 +322,6 @@ watch(
                       '17:00',
                     ]"
                     :key="jam"
-                    :disabled="kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)"
-                    :class="
-                      kalenderTerpakai.includes(`${formBooking.tanggal} ${jam}`)
-                        ? 'text-gray-400 line-through'
-                        : ''
-                    "
                   >
                     {{ jam }}
                   </option>

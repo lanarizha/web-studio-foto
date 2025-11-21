@@ -1,28 +1,32 @@
 import { ref, onMounted } from 'vue';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase.js';
+import api from '../services/api';
 
 export function useAuth() {
   const user = ref(null);
   const loading = ref(true);
 
-  onMounted(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        user.value = currentUser;
-        loading.value = false;
-      } else {
+  const checkAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const response = await api.get('/auth/me'); // Assuming an endpoint like /api/auth/me exists
+        user.value = response.data;
+      } catch (error) {
+        console.error('Authentication check failed:', error);
+        localStorage.removeItem('token');
         user.value = null;
-        loading.value = false;
       }
-    });
+    } else {
+      user.value = null;
+    }
+    loading.value = false;
+  };
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  });
+  onMounted(checkAuth);
 
   return {
     user,
-    loading
+    loading,
+    checkAuth
   };
-} 
+}

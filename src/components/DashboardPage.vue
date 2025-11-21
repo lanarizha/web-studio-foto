@@ -2,7 +2,7 @@
   <div class="min-h-screen flex flex-col items-center justify-center bg-gray-50">
     <div class="text-center">
       <h1 class="text-6xl font-bold text-gray-900 mb-8">
-        Halo!, {{ user?.displayName || user?.email || "User" }}
+        Halo!, {{ user?.name || user?.email || "User" }}
       </h1>
       <button
         @click="handleLogout"
@@ -17,9 +17,9 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase.js";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import api from "../services/api";
 
 export default {
   name: "DashboardPage",
@@ -31,14 +31,19 @@ export default {
   },
   setup() {
     const loading = ref(false);
+    const router = useRouter();
 
     const handleLogout = async () => {
       loading.value = true;
       try {
-        await signOut(auth);
-        // Logout berhasil, user akan diarahkan ke login
+        await api.post('/auth/logout');
+        localStorage.removeItem('token');
+        router.push('/login');
       } catch (err) {
         console.error("Error logging out:", err);
+        // Even if logout fails on the server, we remove the token and redirect
+        localStorage.removeItem('token');
+        router.push('/login');
       } finally {
         loading.value = false;
       }
