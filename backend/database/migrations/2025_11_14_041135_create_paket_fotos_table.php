@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('deskripsi', 500)->nullable();
             $table->integer('harga');
             $table->string('fitur', 500)->nullable();
+            $table->string('foto')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

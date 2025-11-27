@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import LayoutPage from "../../layouts/layout-cust/LayoutPage.vue"; 
 import Button from "../../components/Button.vue";
 import api from "../../services/api";
@@ -14,42 +14,7 @@ import iconHigh from "../../assets/highcam.gif";
 import iconForm from "../../assets/browser-cursor.gif";
 import iconCamera from "../../assets/camera.gif";
 
-// Import gambar (pastikan file ada di folder assets)
-import prewedImage1 from "../../assets/prewed-1.jpg";
-import prewedImage2 from "../../assets/prewed-2.jpg";
-import prewedImage3 from "../../assets/prewed-3.JPG";
-
-import bayiImage1 from "../../assets/bayi-1.jpg";
-import bayiImage2 from "../../assets/bayi-2.jpg";
-import bayiImage3 from "../../assets/bayi-3.webp";
-
-import klgImage1 from "../../assets/klg-1.png";
-import klgImage2 from "../../assets/klg-2.jpg";
-import klgImage3 from "../../assets/klg-3.webp";
-
-import studioImage1 from "../../assets/studio-1.jpg";
-import studioImage2 from "../../assets/studio-2.jpg";
-import studioImage3 from "../../assets/studio-3.jpg";
-
-import wideImage1 from "../../assets/wide-1.jpg";
-import wideImage2 from "../../assets/wide-2.jpg";
-import wideImage3 from "../../assets/wide-3.jpg";
-
-import highImage1 from "../../assets/high-1.jpg";
-import highImage2 from "../../assets/high-2.jpg";
-import highImage3 from "../../assets/high-3.jpg";
-
-
-// --- Local Image and Icon Mapping ---
-const localImages = {
-    "Paket Studio": [studioImage1, studioImage2, studioImage3],
-    "Paket Keluarga": [klgImage1, klgImage2, klgImage3],
-    "Paket Prewedding": [prewedImage1, prewedImage2, prewedImage3],
-    "Paket New Born": [bayiImage1, bayiImage2, bayiImage3],
-    "Paket Wide Angle": [wideImage1, wideImage2, wideImage3],
-    "Paket High Angle": [highImage1, highImage2, highImage3],
-};
-
+// --- Local Icon Mapping ---
 const localIcons = {
     "Paket Studio": iconStudio,
     "Paket Keluarga": iconFamily,
@@ -62,25 +27,6 @@ const localIcons = {
 // Paket List reactive
 const paketList = ref([]);
 
-// Slideshow tiap paket
-const currentSlideIndex = ref({});
-const intervals = {};
-
-// Function to initialize slideshow for all packages
-function initializeSlideshow() {
-  Object.values(intervals).forEach(clearInterval);
-  currentSlideIndex.value = {};
-  paketList.value.forEach((paket, i) => {
-    currentSlideIndex.value[i] = 0;
-    if (paket.images && paket.images.length > 1) {
-      intervals[i] = setInterval(() => {
-        currentSlideIndex.value[i] =
-          (currentSlideIndex.value[i] + 1) % paket.images.length;
-      }, 3000);
-    }
-  });
-}
-
 // Function to load packages from the backend
 async function loadPaketList() {
   try {
@@ -88,10 +34,9 @@ async function loadPaketList() {
     paketList.value = response.map(paket => ({
         ...paket,
         fitur: JSON.parse(paket.fitur || '[]'),
-        images: localImages[paket.nama_paket] || [],
+        // Keep icon mapping based on name
         iconSrc: localIcons[paket.nama_paket] || iconForm,
     }));
-    initializeSlideshow();
   } catch (error) {
     console.error("Error loading paket list:", error);
   }
@@ -131,17 +76,6 @@ async function submitBookingForm() {
   }
 }
 
-// Helper function to get image URL (handles both blob URLs and regular URLs)
-function getImageUrl(imageSrc) {
-  if (!imageSrc) return '';
-  
-  if (imageSrc.startsWith('blob:') || imageSrc.startsWith('data:')) {
-    return imageSrc;
-  }
-  
-  return imageSrc;
-}
-
 // Load data on mount
 onMounted(() => {
   loadPaketList();
@@ -153,16 +87,6 @@ onMounted(() => {
   onBeforeUnmount(() => {
     clearInterval(refreshInterval);
   });
-});
-
-// Watch for changes in paketList and reinitialize slideshow
-watch(paketList, () => {
-  initializeSlideshow();
-}, { deep: true });
-
-// Cleanup intervals
-onBeforeUnmount(() => {
-  Object.values(intervals).forEach(clearInterval);
 });
 </script>
 
@@ -192,24 +116,18 @@ onBeforeUnmount(() => {
       <!-- Packages Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
-          v-for="(paket, index) in paketList"
+          v-for="(paket) in paketList"
           :key="paket.id"
           class="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-2xl hover:scale-[1.02] transition-transform duration-300 bg-white flex flex-col"
         >
-          <!-- Image slideshow -->
+          <!-- Image display -->
           <div class="relative h-52 bg-gray-200 overflow-hidden rounded-t-2xl">
-            <div v-if="paket.images && paket.images.length > 0" class="relative h-full">
-              <transition name="slide-fade" mode="out-in">
-                <img
-                  :key="`img-${paket.images[currentSlideIndex[index]]}-${currentSlideIndex[index]}`"
-                  :src="getImageUrl(paket.images[currentSlideIndex[index]])"
-                  :alt="`${paket.nama_paket} - Image ${currentSlideIndex[index] + 1}`"
-                  class="w-full h-full object-cover"
-                  @error="$event.target.style.display = 'none'"
-                />
-              </transition>
-            </div>
-            
+            <img
+              v-if="paket.foto"
+              :src="paket.foto"
+              :alt="paket.nama_paket"
+              class="w-full h-full object-cover"
+            />
             <!-- Placeholder when no images -->
             <div v-else class="flex items-center justify-center h-full bg-gray-200 text-gray-500">
               <div class="text-center">

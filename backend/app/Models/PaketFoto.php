@@ -15,5 +15,6 @@ class PaketFoto extends Model
         'deskripsi',
         'harga',
         'fitur',
+        'foto',
     ];
 }

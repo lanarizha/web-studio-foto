@@ -1,33 +1,11 @@
 <script setup>
 import LayoutPage from "../../layouts/layout-admin/LayoutPage.vue";
 import Button from "../../components/Button.vue";
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
+import { ref, onMounted } from "vue";
 import api from "../../services/api";
 
-// Import gambar
-import prewedImage1 from "../../assets/prewed-1.jpg";
-import prewedImage2 from "../../assets/prewed-2.jpg";
-import prewedImage3 from "../../assets/prewed-3.JPG";
-
-import bayiImage1 from "../../assets/bayi-1.jpg";
-import bayiImage2 from "../../assets/bayi-2.jpg";
-import bayiImage3 from "../../assets/bayi-3.webp";
-
-import klgImage1 from "../../assets/klg-1.png";
-import klgImage2 from "../../assets/klg-2.jpg";
-import klgImage3 from "../../assets/klg-3.webp";
-
-import studioImage1 from "../../assets/studio-1.jpg";
-import studioImage2 from "../../assets/studio-2.jpg";
-import studioImage3 from "../../assets/studio-3.jpg";
-
-import wideImage1 from "../../assets/wide-1.jpg";
-import wideImage2 from "../../assets/wide-2.jpg";
-import wideImage3 from "../../assets/wide-3.jpg";
-
-import highImage1 from "../../assets/high-1.jpg";
-import highImage2 from "../../assets/high-2.jpg";
-import highImage3 from "../../assets/high-3.jpg";
+// Declare props to consume extraneous attributes passed from parent (e.g., RouterView)
+defineProps(['user']);
 
 // Import icon gif
 import iconStudio from "../../assets/studiocam.gif";
@@ -54,8 +32,6 @@ const availableIcons = ref([
 
 // State
 const paketList = ref([]);
-const currentSlideIndex = ref({});
-const intervals = {};
 
 // Tambah Paket
 const showTambahPaketModal = ref(false);
@@ -64,10 +40,11 @@ const newPaket = ref({
   deskripsi: "",
   harga: 0,
   fitur: [],
-  // images and iconSrc are handled locally
-  images: [],
+  foto: null,
   iconSrc: iconForm,
 });
+const fotoFile = ref(null);
+const fotoPreview = ref(null);
 const editPaketId = ref(null);
 const fiturInput = ref("");
 
@@ -78,27 +55,6 @@ const selectedIconSrc = ref(iconForm);
 // Custom icon upload
 const customIconFile = ref(null);
 
-
-// --- Local Image and Icon Mapping ---
-const localImages = {
-    "Paket Studio": [studioImage1, studioImage2, studioImage3],
-    "Paket Keluarga": [klgImage1, klgImage2, klgImage3],
-    "Paket Prewedding": [prewedImage1, prewedImage2, prewedImage3],
-    "Paket New Born": [bayiImage1, bayiImage2, bayiImage3],
-    "Paket Wide Angle": [wideImage1, wideImage2, wideImage3],
-    "Paket High Angle": [highImage1, highImage2, highImage3],
-};
-
-const localIcons = {
-    "Paket Studio": iconStudio,
-    "Paket Keluarga": iconFamily,
-    "Paket Prewedding": iconPrewed,
-    "Paket New Born": iconBaby,
-    "Paket Wide Angle": iconWide,
-    "Paket High Angle": iconHigh,
-};
-
-
 // --- API Calls ---
 async function fetchPaketList() {
     try {
@@ -106,46 +62,76 @@ async function fetchPaketList() {
         paketList.value = response.map(paket => ({
             ...paket,
             fitur: JSON.parse(paket.fitur || '[]'),
-            images: localImages[paket.nama_paket] || [],
-            iconSrc: localIcons[paket.nama_paket] || iconForm,
+            // Assuming icon mapping is still needed, otherwise remove this too
+            iconSrc: availableIcons.value.find(icon => icon.name.toLowerCase().includes(paket.nama_paket.split(' ')[1]?.toLowerCase()))?.src || iconForm,
         }));
-        setupSlideshow();
     } catch (error) {
         console.error("Error fetching paket list:", error);
     }
 }
 
-// Tambah paket
+// Tambah/Edit paket
 async function tambahPaket() {
   if (!newPaket.value.nama_paket || !newPaket.value.deskripsi || !newPaket.value.harga) {
     alert("Nama, deskripsi, dan harga wajib diisi 💕");
     return;
   }
 
-  const payload = {
-    ...newPaket.value,
-    fitur: JSON.stringify(newPaket.value.fitur),
-  };
-  
-  // Remove local-only properties before sending to backend
-  delete payload.images;
-  delete payload.iconSrc;
+  const formData = new FormData();
+  formData.append('nama_paket', newPaket.value.nama_paket);
+  formData.append('deskripsi', newPaket.value.deskripsi);
+  formData.append('harga', newPaket.value.harga);
+  formData.append('fitur', JSON.stringify(newPaket.value.fitur));
+  // formData.append('iconSrc', selectedIconSrc.value); // If you decide to save icons
+
+  if (fotoFile.value) {
+    formData.append('foto', fotoFile.value);
+  }
 
   try {
     if (editPaketId.value) {
-      await api.put(`/paket-foto/${editPaketId.value}`, payload);
+      formData.append('_method', 'PUT');
+      await api.post(`/paket-foto/${editPaketId.value}`, formData);
     } else {
-      await api.post('/paket-foto', payload);
+      await api.post('/paket-foto', formData);
     }
+    alert('Paket foto berhasil disimpan!');
     fetchPaketList();
     showTambahPaketModal.value = false;
   } catch (error) {
-      console.error("Error saving paket:", error);
-      alert("Gagal menyimpan paket.");
+    console.error("Error saving paket:", error);
+
+    // Enhanced Error Handling
+    if (error.response) {
+      const status = error.response.status;
+      const data = error.response.data;
+
+      // Laravel Validation Error
+      if (status === 400 || status === 422) {
+        let errorMessage = "Gagal menyimpan paket. Alasan:\n";
+        if (data && typeof data === 'object') {
+          for (const key in data) {
+            if (Array.isArray(data[key])) {
+              errorMessage += `- ${data[key].join(', ')}\n`;
+            }
+          }
+          alert(errorMessage);
+        }
+      } 
+      // Other Server Errors (e.g., 500)
+      else {
+        const message = data.message || 'Terjadi error di server, tapi tidak ada pesan spesifik.';
+        alert(`Gagal menyimpan paket. Server merespon dengan status ${status}.\nDetail: ${message}`);
+      }
+    } 
+    // Network Error or other issues
+    else {
+      alert("Gagal menyimpan paket. Periksa koneksi internet atau konfigurasi server Anda.");
+    }
   }
 }
 
-// Edit & hapus paket/foto
+// Edit & hapus paket
 function editPaket(paket) {
   editPaketId.value = paket.id;
   newPaket.value = {
@@ -153,9 +139,10 @@ function editPaket(paket) {
     deskripsi: paket.deskripsi,
     harga: paket.harga,
     fitur: Array.isArray(paket.fitur) ? [...paket.fitur] : [],
-    images: paket.images,
+    foto: paket.foto,
     iconSrc: paket.iconSrc,
   };
+  fotoPreview.value = paket.foto; // Show existing image
   selectedIconSrc.value = paket.iconSrc || iconForm;
   showTambahPaketModal.value = true;
 }
@@ -172,16 +159,18 @@ async function hapusPaket(id) {
   }
 }
 
-
 // --- Local UI Functions ---
 // Upload gambar
-function handleImageUpload(e) {
-  const files = e.target.files;
-  Array.from(files).forEach((file) => {
+function handleFotoUpload(e) {
+  const file = e.target.files[0];
+  if (file) {
+    fotoFile.value = file;
     const reader = new FileReader();
-    reader.onload = (event) => newPaket.value.images.push(event.target.result);
+    reader.onload = (event) => {
+      fotoPreview.value = event.target.result;
+    };
     reader.readAsDataURL(file);
-  });
+  }
 }
 
 // Handle custom icon upload
@@ -233,9 +222,11 @@ function resetForm() {
     deskripsi: "",
     harga: 0,
     fitur: [],
-    images: [],
+    foto: null,
     iconSrc: iconForm,
   };
+  fotoFile.value = null;
+  fotoPreview.value = null;
   selectedIconSrc.value = iconForm;
   editPaketId.value = null;
   fiturInput.value = "";
@@ -260,30 +251,6 @@ function hapusFitur(index) {
   newPaket.value.fitur.splice(index, 1);
 }
 
-function hapusFoto(index) {
-  if (confirm("Yakin ingin menghapus foto ini?")) {
-    newPaket.value.images.splice(index, 1);
-  }
-}
-
-// Slideshow
-function setupSlideshow() {
-  Object.values(intervals).forEach(clearInterval);
-  currentSlideIndex.value = paketList.value.map(() => 0);
-  paketList.value.forEach((paket, i) => {
-    if (paket.images && paket.images.length > 1) {
-      intervals[i] = setInterval(
-        () =>
-          (currentSlideIndex.value[i] =
-            (currentSlideIndex.value[i] + 1) % paket.images.length),
-        3000
-      );
-    }
-  });
-}
-
-onBeforeUnmount(() => Object.values(intervals).forEach(clearInterval));
-
 // Load data awal
 onMounted(() => {
   fetchPaketList();
@@ -301,10 +268,13 @@ onMounted(() => {
       >
         <!-- Gambar -->
         <img
-          v-if="paket.images && paket.images.length"
-          :src="paket.images[currentSlideIndex[paket.id] || 0]"
-          class="w-full aspect-[16/9] object-cover transition-all duration-700 ease-in-out"
+          v-if="paket.foto"
+          :src="paket.foto"
+          class="w-full aspect-[16/9] object-cover"
         />
+        <div v-else class="w-full aspect-[16/9] bg-gray-200 flex items-center justify-center text-gray-400">
+            No Image
+        </div>
 
         <!-- Content -->
         <div class="p-4 flex-1 flex flex-col justify-between">
@@ -437,6 +407,24 @@ onMounted(() => {
             </div>
           </div>
         </div>
+        
+        <!-- Upload Gambar -->
+        <div class="mb-6">
+          <label class="font-medium mb-2 block text-sm">Gambar Paket</label>
+          <input 
+            type="file" 
+            accept="image/jpeg,image/png,image/jpg,image/gif"
+            @change="handleFotoUpload"
+            class="w-full text-sm border rounded px-2 py-1"
+          />
+          <div v-if="fotoPreview" class="mt-4">
+            <img :src="fotoPreview" alt="Preview" class="w-full h-auto rounded-lg object-cover">
+          </div>
+          <p class="text-xs text-gray-500 mt-1">
+            Format: JPG, JPEG, PNG, GIF (Max 2MB)
+          </p>
+        </div>
+
 
         <!-- Info Paket -->
         <div class="mb-4 space-y-3">
@@ -501,12 +489,6 @@ onMounted(() => {
             </div>
           </div>
           <p v-else class="text-sm text-gray-500 italic">Belum ada fitur ditambahkan</p>
-        </div>
-
-        <!-- Upload Gambar -->
-        <div class="mb-6">
-          <label class="font-medium mb-2 block text-sm">Gambar Paket</label>
-          <p class="text-sm text-gray-500 italic">Gambar dan icon di-handle secara lokal di frontend dan tidak disimpan di database.</p>
         </div>
 
         <!-- Tombol -->
