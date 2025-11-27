@@ -2,9 +2,15 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
 
 async function request(method, endpoint, data = null, isAuth = true) {
   const headers = {
-    'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
+  
+  const isFormData = data instanceof FormData;
+
+  // Don't set Content-Type for FormData, the browser will do it
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (isAuth) {
     const token = localStorage.getItem('token');
@@ -19,7 +25,7 @@ async function request(method, endpoint, data = null, isAuth = true) {
   };
 
   if (data) {
-    config.body = JSON.stringify(data);
+    config.body = isFormData ? data : JSON.stringify(data);
   }
 
   try {
@@ -27,7 +33,17 @@ async function request(method, endpoint, data = null, isAuth = true) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || 'Something went wrong');
+      const error = new Error('API request failed');
+      error.response = {
+        data: errorData,
+        status: response.status,
+      };
+      throw error;
+    }
+    
+    // Handle 204 No Content response
+    if (response.status === 204) {
+      return null;
     }
 
     return await response.json();
